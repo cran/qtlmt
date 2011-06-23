@@ -1,0 +1,17 @@
+useDynLib(qtlmt)
+
+export(gv2mpos,xid1ch,xeff,qeff,#fqtdst,
+       varT2,varAdd1,varDrop1,varStep,varGroup,varSelect,
+#       mMove,mAdd1,mDrop1,mStep,
+       sureEst,sureAdd1,sureDrop1,sureStep,sureStep2,sureEps,#sureMove,
+       mtcmim,mtcmimAdd1,mtcmimDrop1,mtcmimStep)
+
+#importFrom(mvtnorm, "rmvnorm")
+#importFrom(gdata, "reorder.factor")
+
+S3method(mtcmimAdd1, default)
+S3method(mtcmimDrop1, default)
+S3method(mtcmimStep, default)
+S3method(sureStep, default)
+S3method(sureStep2, default)
+
