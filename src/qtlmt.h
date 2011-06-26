@@ -1,4 +1,6 @@
 
+//qtlmt.h
+
 #include "R_ext/Error.h"
 #include "R_ext/Memory.h"
 #ifdef ENABLE_NLS
@@ -30,7 +32,7 @@ double det(double** A, int n);
 void ginv(double** A, int m, int n, double** ginvA);
 void inv(double** A, int n, double** invA);
 double inv_det(double** A, int n, double** invA);
-void itoa(int i,char buff[],int base=10);
+void i_to_a(int i,char buff[],int base=10);
 void lubksb(double **a, int n, int *indx, double b[]);
 void lud(double **a, int n, int *indx, double *d);
 void runif(double* x,int n,long *seed=0);

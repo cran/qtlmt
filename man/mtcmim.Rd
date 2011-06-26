@@ -71,7 +71,7 @@ convergence tolerance.
 
 \value{
 a list with the following components:
-  \item{loglik:}{log-likelihood of the end model}
+  \item{loglik:}{log-likelihood of the final model}
   \item{a:}{covariate effects}
   \item{b:}{QTL effects}
   \item{sigma:}{residual variance-covariance}

@@ -25,7 +25,7 @@ data matrix/frame. Columns are variables to select from.
 grouping indicator of observations.
 }
   \item{vin}{
-which variables (i.e., columns of \code{x}) already in model.
+which variables (i.e., columns of \code{x}) already in model. It defines the initial model.
 }
   \item{scope}{
 which variables (i.e., columns of \code{x}) to select from.

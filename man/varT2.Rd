@@ -2,10 +2,10 @@
 \Rdversion{0.1}
 \alias{varT2}
 \title{
-Group variables
+Hotelling's T^2 test statistic
 }
 \description{
-Group variables via variable selection such that the grouped variables are optimal for multivariate analysis.
+Calculate the Hotelling's T^2 test statistic.
 }
 \usage{
 varT2(x, grp, equalVar=T)

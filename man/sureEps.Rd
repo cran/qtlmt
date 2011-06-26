@@ -2,10 +2,10 @@
 \Rdversion{0.1}
 \alias{sureEps}
 \title{
-Epistasis between QTL in a SURE model
+Epistasis in a SURE model
 }
 \description{
-Look for epistasis between QTL in a model via model selection.
+Look for epistasis between existing QTL in a model via model selection.
 }
 \usage{
 sureEps(y, x, v, k, direction=c("both","backward","forward"),

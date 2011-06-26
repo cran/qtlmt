@@ -20,7 +20,7 @@ data matrix/frame. Columns are variables to select from.
 data matrix/frame. Columns are variables with elements 1 or not 1 (any others).
 }
   \item{zscope}{
-which variables in \code{z} to be used for grouping.
+which variables in \code{z} to be used for grouping; all if "NULL".
 }
   \item{k}{
 entry/stay value in backward stepwise.
