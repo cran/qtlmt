@@ -1,9 +1,8 @@
 \name{sureStep}
-\Rdversion{0.1}
 \alias{sureAdd1}
 \alias{sureDrop1}
 \alias{sureStep}
-\alias{sureStep2}
+\alias{surStep}
 \title{
 SURE model selection
 }
@@ -11,40 +10,40 @@ SURE model selection
 Select a SURE model via model selection.
 }
 \usage{
-sureAdd1(obj, y, x, range=NULL, iter=250, tol=1e-8, ext=FALSE)
+sureAdd1(object, y, x, range=NULL, iter=250, tol=1e-8, ext=FALSE)
 
-sureDrop1(obj, y, x, range=NULL, iter=250, tol=1e-8, ext=FALSE)
+sureDrop1(object, y, x, range=NULL, iter=250, tol=1e-8, ext=FALSE)
 
-sureStep(y, x, v, lower, upper, k, direction=c("both","backward",
-   "forward"), iter=250, max.terms=200, steps=1000, tol=1e-8)
-
-sureStep2(obj, y, x, cv, direction=c("both","backward","forward"),
+sureStep(object, y, x, cv, direction=c("both","backward","forward"),
    range=NULL, iter=250, steps=1000, tol=1e-8, ext=FALSE)
+
+surStep(y, x, v, lower, upper, k, direction=c("both","backward",
+   "forward"), iter=250, max.terms=200, steps=1000, tol=1e-8)
 }
 \arguments{
-  \item{obj}{
+  \item{object}{
 initial model in model search; can be an object of \code{\link{sureEst}}.
 }
   \item{y}{
-n by p matrix, whose columns are dependent variables.
+a n by p matrix, whose columns are dependent variables.
 }
   \item{x}{
-n by m matrix, whose columns are predictor variables to select from.
+a n by m matrix, whose columns are predictor variables to select from.
+}
+  \item{range}{
+a list; range[[j]] indicates which x's (all if \code{NULL}) correspond to which y[,j].
 }
   \item{cv}{
 critical value used in the likelihood ratio test to determine adding/dropping a term.
 }
   \item{v}{
-list; v[[j]] indicates which x's to start with for y[,j].
-}
-  \item{range}{
-list; range[[j]] indicates which x's (all if \code{NULL}) correspond to which y[,j].
+a list; v[[j]] indicates which x's to start with for y[,j].
 }
   \item{lower}{
-list in the format of \code{v}; lower scope of the model.
+a list in the format of \code{v}; lower scope of the model.
 }
   \item{upper}{
-list in the format of \code{v}; upper scope of the model.
+a list in the format of \code{v}; upper scope of the model.
 }
   \item{k}{
 penalty, 0 if missing or <0.
@@ -65,7 +64,7 @@ maximum number of search steps.
 convergence tolerance.
 }
   \item{ext}{
-whether to perform an extensive search.
+whether to perform an extensive search for an "optimal" model with the same number of QTL per phenotype.
 }
 }
 \value{
@@ -87,8 +86,11 @@ for(k in 1:ncol(y)){
    upper[[k]]<- 1:ncol(x)
 }
 \dontrun{
-g1<- sureStep(y, x, v=v, upper=upper, k=19)
-g2<- sureStep2(g1, y, x, cv=1/2, ext=FALSE)
+o1<- surStep(y, x, v=v, upper=upper, k=19)
+o2<- sureStep(o1, y, x, cv=50, ext=FALSE)
+
+# search for optimal model of o1
+o3<- sureStep(o1, y, x, cv=Inf, direction="forward", ext=TRUE)
 }
 }
 

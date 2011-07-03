@@ -16,22 +16,22 @@ gv2mpos(gmap,v)
 # extract 'xid' on chromosome 'k'
 xid1ch(mpos,v,k)
 
-# extract covariate effects of a mtcmim object 'obj'
+# extract covariate effects of a mtcmim object 'object'
 xeff(a,xid)
 
-# extract QTL effect from a mtcmim object 'obj'
-qeff(obj)
+# extract QTL effect from a mtcmim object 'object'
+qeff(object)
 }
 
 \arguments{
   \item{gmap}{
-genetic map, a data frame (chr=chromosome id, dist=genetic distance (cM) on the chromosome,...). The chromosome id should be an integer.
+a genetic map, which is a data frame (chr=chromosome id, dist=genetic distance (cM) on the chromosome,...). The chromosome id should be an integer.
 }
   \item{v}{
-list; v[[j]] indicates which x's in the model for y[,j].
+a list; v[[j]] indicates which x's in the model for y[,j].
 }
   \item{mpos}{
-data frame (id=marker index, ch=chromosome id, m=marker index on the chromosome, dist=genetic position in cM on the chromosome). Chromosome id should be an integer.
+a data frame (id=marker index, ch=chromosome id, m=marker index on the chromosome, dist=genetic position in cM on the chromosome). Chromosome id should be an integer.
 }
   \item{k}{
 which chromosome?
@@ -40,9 +40,9 @@ which chromosome?
 covariate effects of an \code{\link{mtcmim}} object.
 }
   \item{xid}{
-list of length p, xid[[j]] specifies columns of x as covariates for y[,j] .
+a list of length p, xid[[j]] specifies columns of x as covariates for y[,j] .
 }
-  \item{obj}{
+  \item{object}{
 an \code{\link{mtcmim}} object.
 }
 }

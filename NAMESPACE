@@ -2,8 +2,8 @@ useDynLib(qtlmt)
 
 export(gv2mpos,xid1ch,xeff,qeff,#fqtdst,
        varT2,varAdd1,varDrop1,varStep,varGroup,varSelect,
-#       mMove,mAdd1,mDrop1,mStep,
-       sureEst,sureAdd1,sureDrop1,sureStep,sureStep2,sureEps,#sureMove,
+       mlogLik,mStep,mAdd1,mDrop1,#mMove,
+       sureEst,sureAdd1,sureDrop1,sureStep,surStep,sureEps,#sureMove,
        mtcmim,mtcmimAdd1,mtcmimDrop1,mtcmimStep)
 
 #importFrom(mvtnorm, "rmvnorm")
@@ -12,6 +12,13 @@ export(gv2mpos,xid1ch,xeff,qeff,#fqtdst,
 S3method(mtcmimAdd1, default)
 S3method(mtcmimDrop1, default)
 S3method(mtcmimStep, default)
+S3method(mAdd1, default)
+S3method(mDrop1, default)
+S3method(mStep, default)
+S3method(sureEst, default)
+S3method(sureAdd1, default)
+S3method(sureDrop1, default)
 S3method(sureStep, default)
-S3method(sureStep2, default)
+S3method(surStep, default)
+S3method(sureEps, default)
 

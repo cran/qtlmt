@@ -1,345 +1,18 @@
 
-# Note: investigate behaviour of the SURE model by comparing it with single-trait
-# single-QTL, single-trait multiple-QTL, multiple-trait single-QTL and multiple-
-# trait multiple-QTL regression
+#############################
+#  functions for SURE model #
+################################################################################
 
-# part I:  functions for model selection: multivariate multiple regression -- extensive
-# part II:  functions for model selection: SURE -- extensive
-
-
-#########################################################################################
-# part I:  functions for model selection: multivariate multiple regression -- extensive
-#########################################################################################
-####################################
-# multivariate multiple regression 
-# extended stepwise model selection 
-####################################
-fscope<- function(scope){
-# scope: vector of predictors
-  if(length(scope)){
-    formula(paste("~",paste(scope,collapse="+",sep="")))
-  }else{
-    formula(paste("~",1))
-  }
-}
-
-mloglik<- function(obj){
-# obj: regression object
-  rs<- as.matrix(obj$residuals)
-  n<- dim(rs)[1]
-  p<- dim(rs)[2]
-  E<- crossprod(rs)/n
-  detE<- det(E)
-  loglik<- -n*p/2*(log(2*pi)+1) - n/2*log(detE)
-  
-  loglik
-}
-
-mMove<- function(obj,scope,...){
-# scope: all candidate predictors
-  ob<- obj
-  ins<- attr(terms(ob),"term.labels")
-  if(any(is.na(match(ins,scope)),na.rm = FALSE))
-    stop("scope does not include model...")
-  yes<- TRUE
-  nn<- length(ins); if(nn<1) yes<- FALSE
-  outs<- setdiff(scope,ins); if(length(outs)<1) yes<- FALSE
-  lik<- mloglik(ob)
-  while(yes){
-    yes<- FALSE
-    for(n in 1:nn){
-      ins1<- ins
-      for(x in outs){
-        ins1[n]<- x; scp1<- sort(ins1)
-        scp1<- fscope(ins1)
-        ob1<- update(ob, scp1, evaluate = TRUE,...)
-        lik1<- mloglik(ob1)
-        if(lik1>lik+1e-8){
-          ins<- ins1
-          lik<- lik1
-          ob<- ob1
-          yes<- TRUE
-        }
-      }
-      outs<- setdiff(scope,ins)
-    }
-  }
-  ob
-}
-
-#################################
-###  multivariate regression  ###
-### add single terms to model ###
-#################################
-mAdd1 <- function(obj, scope, ext=FALSE, ...){
-# scope: upper model that contains the base or terms to add
-  if(missing(scope) || is.null(scope)) stop("no terms in scope...")
-  ins<- attr(terms(obj),"term.labels")
-  if(is.null(scope)||missing(scope)){
-    scope<- list()
-    scope$lower<- numeric(0)
-    scope$upper<- ins
-  }else if(is.list(scope)){
-    if(length(scope)==1){
-      scope0<- scope[[1]]
-      scope<- list()
-      scope$lower<- ins
-      scope$upper<- scope0
-    }else if(length(scope)==2){
-      flg1<- any(is.na(match(scope[[1]],scope[[2]])),na.rm = FALSE)
-      flg2<- any(is.na(match(scope[[2]],scope[[1]])),na.rm = FALSE)
-      if(flg1&&flg2){
-        stop("scope: wrong...")
-      }else if(flg1){
-        scope$lower<- scope[[2]]
-        scope$upper<- scope[[1]]
-      }else{
-        scope$lower<- scope[[1]]
-        scope$upper<- scope[[2]]
-      }
-    }else stop("scope: wrong...")
-  }else{
-    scope0<- scope
-    scope<- list()
-    scope$lower<- ins
-    scope$upper<- scope0
-  }
-
-  if(any(is.na(match(ins,scope$upper)),na.rm = FALSE))
-    stop("scope$upper does not include model...")
-
-  yes<- TRUE
-  outs<- setdiff(scope$upper,ins)
-  if(!length(outs)){
-#    cat("no terms in scope for adding...")
-    yes<- FALSE
-  }
-
-  if(ext) ob<- mMove(obj,scope$upper,...) else ob<- obj
-  add<- FALSE
-  if(yes){
-    yes<- FALSE
-    lik0<- mloglik(ob)
-    ob0<- ob
-    for(tt in outs) {
-      ob1<- NULL
-      ob1 <- update(ob, paste("~ . + ", tt), evaluate = TRUE,...)
-      lik1<- mloglik(ob1)
-      if(lik1>lik0+1e-8){
-        ob0<- ob1
-        lik0<- lik1
-        add<- TRUE
-        yes<- TRUE
-      }
-    }
-    if(yes){
-      ob<- ob0
-      if(ext) ob<- mMove(ob,scope$upper,...)
-    }
-  }
-
-  list(fit=ob,add=add)
-}
-
-####################################
-###  multivariate regression   ###
-### drop single terms from model ###
-####################################
-mDrop1 <- function(obj, scope, ext=FALSE, ...){
-# scope: lower model that is contained in the base or terms to drop
-  if(missing(scope) || is.null(scope)) stop("no terms in scope...")
-  ins<- attr(terms(obj),"term.labels")
-  if(is.null(scope)||missing(scope)){
-    scope<- list()
-    scope$lower<- numeric(0)
-    scope$upper<- ins
-  }else if(is.list(scope)){
-    if(length(scope)==1){
-      scope0<- scope[[1]]
-      scope$lower<- scope0
-      scope$upper<- ins
-    }else if(length(scope)==2){
-      flg1<- any(is.na(match(scope[[1]],scope[[2]])),na.rm = FALSE)
-      flg2<- any(is.na(match(scope[[2]],scope[[1]])),na.rm = FALSE)
-      if(flg1&&flg2){
-        stop("scope: wrong...")
-      }else if(flg1){
-        scope$lower<- scope[[2]]
-        scope$upper<- scope[[1]]
-      }else{
-        scope$lower<- scope[[1]]
-        scope$upper<- scope[[2]]
-      }
-    }else stop("scope: wrong...")
-  }else{
-    scope0<- scope
-    scope<- list()
-    scope$lower<- scope0
-    scope$upper<- ins
-  }
-
-  if(any(is.na(match(scope$lower,ins)),na.rm = FALSE))
-    stop("scope$lower is not a subset of term labels")
-
-  yes<- TRUE
-  outs<- setdiff(ins,scope$lower)
-  if(!length(outs)){
-#    cat("no terms in scope for dropping...")
-    yes<- FALSE
-  }
-
-  if(ext) ob<- mMove(obj,scope$upper,...) else ob<- obj
-  drop<- FALSE
-  if(yes){
-    yes<- FALSE
-    lik0<- -Inf
-    ob0<- ob
-    for(n in 1:length(outs)) {
-      scp1<- setdiff(ins,outs[n])
-      scp1<- fscope(scp1)
-      ob1<- update(ob, scp1, evaluate = TRUE,...)
-      lik1<- mloglik(ob1)
-      if(lik1>lik0+1e-8){
-        ob0<- ob1
-        lik0<- lik1
-        drop<- TRUE
-        yes<- TRUE
-      }
-    }
-    if(yes){
-      ob<- ob0
-      if(ext) ob<- mMove(ob,scope$upper,...)
-    }
-  }
-
-  list(fit=ob,drop=drop)
-}
-
-###################################
-###   multivariate regression   ###
-###  stepwise model selection   ###
-###################################
-mStep<- function (obj, scope, cv, direction = c("both", "backward", "forward"), steps = 1000, ext=FALSE, ...){
-  direction<- match.arg(direction)
-  ins<- attr(terms(obj),"term.labels")
-  if(is.null(scope)||missing(scope)){
-    scope<- list()
-    scope$lower<- numeric(0)
-    scope$upper<- ins
-  }else if(is.list(scope)){
-    if(length(scope)==1){
-      scope0<- scope[[1]]
-      scope$lower<- numeric(0)
-      scope$upper<- scope0
-    }else if(length(scope)==2){
-      flg1<- any(is.na(match(scope[[1]],scope[[2]])),na.rm = FALSE)
-      flg2<- any(is.na(match(scope[[2]],scope[[1]])),na.rm = FALSE)
-      if(flg1&&flg2){
-        stop("scope: wrong...")
-      }else if(flg1){
-        scope$lower<- scope[[2]]
-        scope$upper<- scope[[1]]
-      }else{
-        scope$lower<- scope[[1]]
-        scope$upper<- scope[[2]]
-      }
-    }else stop("scope: wrong...")
-  }else{
-    scope0<- scope
-    scope<- list()
-    scope$lower<- numeric(0)
-    scope$upper<- scope0
-  }
-
-  if(ext) o<- mMove(obj,scope$upper,...) else o<- obj
-  lik<- mloglik(o)
-  if(direction=="both"){
-    yes<- TRUE
-    if(missing(cv)){
-      stop("\a\n  cv: should be positive but missing...\n\n")
-    }
-    while(yes){
-      yes<- FALSE
-      od<- mDrop1(o,scope$lower,ext=ext,...)
-      lik1<- mloglik(od$fit)
-      if(od$drop & 2*(lik-lik1)<cv){
-        o<- od$fit
-        lik<- mloglik(o)
-        yes<- TRUE
-#        cat("-")
-      }else{
-        oa<- mAdd1(o,scope$upper,ext=ext,...)
-        lik1<- mloglik(oa$fit)
-        if(oa$add && 2*(lik1-lik)>cv){
-          o<- oa$fit
-          lik<- mloglik(o)
-          yes<- TRUE
-#          cat("+")
-        }else{
-          od<- mDrop1(oa$fit,scope$lower,ext=ext,...)
-          lik1<- mloglik(od$fit)
-          if(lik1>lik+1e-8){
-             o<- od$fit
-             lik<- mloglik(o)
-             yes<- TRUE
-#             cat("=")
-          }
-        }
-      }
-    }
-  }else if(direction=="backward"){
-    if(missing(cv)){
-      cv<- Inf
-#      cat("\a\n  cv: replaced by Inf...\n\n")
-    }
-    yes<- TRUE
-    while(yes){
-      yes<- FALSE
-      od<- mDrop1(o,scope$lower,ext=ext,...)
-      lik1<- mloglik(od$fit)
-      if(od$drop && 2*(lik-lik1)<cv){
-        o<- od$fit
-        lik<- mloglik(o)
-        yes<- TRUE
-#        cat("-")
-      }
-    }
-  }else if(direction=="forward"){
-    if(missing(cv)){
-      cv<- 0
-#      cat("\a\n  cv: replaced by 0...\n\n")
-    }
-    yes<- TRUE
-    while(yes){
-      yes<- FALSE
-      oa<- mAdd1(o,scope$upper,ext=ext,...)
-      lik1<- mloglik(oa$fit)
-      if(oa$add && 2*(lik1-lik)>cv){
-        o<- oa$fit
-        lik<- mloglik(o)
-        yes<- TRUE
-#        cat("+")
-      }
-    }
-  }
-#  cat("\n")
-
-  o
-}
-
-###################################################################################
-# part III:  functions for model selection: SURE -- extensive
-###################################################################################
 #############################
 # SURE: add, drop, stepwise #
 #############################
-sureMove<- function(obj,y,x,range=NULL,iter=250,tol=1e-8){
-# obj: object from sureEst() or alike
+sureMove<- function(object,y,x,range=NULL,iter=250,tol=1e-8){
+# object: object from sureEst() or alike
 # y: n by p matrix
 # x: n by m matrix
 # range: list, which x's for y_j
   yes<- TRUE
-  ooo<- obj
+  ooo<- object
   vvv<- ooo$v
   p<- ncol(y)
   if(is.null(range)||missing(range)){
@@ -386,7 +59,19 @@ sureMove<- function(obj,y,x,range=NULL,iter=250,tol=1e-8){
 #############################
 # SURE: estimate b and sigma #
 ##############################
-sureEst<- function(y, x, v, sigma, iter=250, tol=1e-8){
+
+sureEst<-
+   function(y,
+            x,
+            v,
+            sigma,
+            iter=250,
+            tol=1e-8)
+{
+   UseMethod("sureEst")
+}
+
+sureEst.default<- function(y, x, v, sigma, iter=250, tol=1e-8){
 # y: n by p matrix
 # x: n by m matrix
 # v: list of x's to start with
@@ -429,7 +114,19 @@ sureEst<- function(y, x, v, sigma, iter=250, tol=1e-8){
   oo
 }
 
-sureAdd1<- function(obj,y,x,range=NULL,iter=250,tol=1e-8,ext=FALSE){
+sureAdd1<-
+   function(object,
+            y,
+            x,
+            range=NULL,
+            iter=250,
+            tol=1e-8,
+            ext=FALSE)
+{
+   UseMethod("sureAdd1")
+}
+
+sureAdd1.default<- function(object,y,x,range=NULL,iter=250,tol=1e-8,ext=FALSE){
   if(!is.matrix(y)) stop("\a  y should be a matrix...")
   if(!is.matrix(x)) stop("\a  x should be a matrix...")
   n<- nrow(y)
@@ -442,7 +139,7 @@ sureAdd1<- function(obj,y,x,range=NULL,iter=250,tol=1e-8,ext=FALSE){
     for(i in 1:p) range[[i]]<- 1:ncol(x)
   }
 
-  if(ext) o<- sureMove(obj,y,x,range=range,iter=iter,tol=tol) else o<- obj
+  if(ext) o<- sureMove(object,y,x,range=range,iter=iter,tol=tol) else o<- object
 
   o0<- o
   add<- FALSE
@@ -466,7 +163,20 @@ sureAdd1<- function(obj,y,x,range=NULL,iter=250,tol=1e-8,ext=FALSE){
   oo
 }
 
-sureDrop1<- function(obj,y,x,range=NULL,iter=250,tol=1e-8,ext=FALSE){
+sureDrop1<-
+   function(object,
+            y,
+            x,
+            range=NULL,
+            iter=250,
+            tol=1e-8,
+            ext=FALSE)
+{
+   UseMethod("sureDrop1")
+}
+
+sureDrop1.default<- function(object,y,x,range=NULL,
+  iter=250,tol=1e-8,ext=FALSE){
   if(!is.matrix(y)) stop("\a  y should be a matrix...")
   if(!is.matrix(x)) stop("\a  x should be a matrix...")
   n<- nrow(y)
@@ -479,7 +189,7 @@ sureDrop1<- function(obj,y,x,range=NULL,iter=250,tol=1e-8,ext=FALSE){
     for(i in 1:p) range[[i]]<- 1:ncol(x)
   }
 
-  if(ext) o<- sureMove(obj,y,x,range=range,iter=iter,tol=tol) else o<- obj
+  if(ext) o<- sureMove(object,y,x,range=range,iter=iter,tol=tol) else o<- object
 
   o0<- o; lik<- -Inf
   drop<- FALSE
@@ -508,9 +218,25 @@ sureDrop1<- function(obj,y,x,range=NULL,iter=250,tol=1e-8,ext=FALSE){
 #####################
 ### SURE stepwise ###
 #####################
-sureStep2.default<- function(obj, y, x, cv, direction=c("both", "backward", "forward"),
-  range=NULL, iter=250, steps=1000, tol=1e-8, ext=FALSE){
-# obj: sure object to start with
+sureStep<- 
+   function(object,
+            y,
+            x,
+            cv,
+            direction=c("both", "backward", "forward"),
+            range=NULL,
+            iter=250,
+            steps=1000,
+            tol=1e-8,
+            ext=FALSE)
+{
+   UseMethod("sureStep")
+}
+
+sureStep.default<- function(object, y, x, cv, 
+  direction=c("both", "backward", "forward"), range=NULL,
+  iter=250, steps=1000, tol=1e-8, ext=FALSE){
+# object: sure object to start with
 # y: n by p matrix
 # x: n by m matrix
 # cv: threshold for -2*log(H0/H1)
@@ -528,7 +254,7 @@ sureStep2.default<- function(obj, y, x, cv, direction=c("both", "backward", "for
     for(i in 1:p) range[[i]]<- 1:ncol(x)
   }
 
-  if(ext) o<- sureMove(obj,y=y,x=x,range=range,iter=iter,tol=tol) else o<- obj
+  if(ext) o<- sureMove(object,y=y,x=x,range=range,iter=iter,tol=tol) else o<- object
 
   if(direction=="both"){
     yes<- TRUE
@@ -537,23 +263,20 @@ sureStep2.default<- function(obj, y, x, cv, direction=c("both", "backward", "for
     }
     while(yes){
       yes<- FALSE
-      od<- sureDrop1(obj=o,y=y,x=x,range=range,iter=iter,tol=tol,ext=ext)
+      od<- sureDrop1(object=o,y=y,x=x,range=range,iter=iter,tol=tol,ext=ext)
       if(od$drop && 2*(o$loglik-od$loglik)<cv){
         o<- od
         yes<- TRUE
-#        cat("-")
       }else{
-        oa<- sureAdd1(obj=o,y=y,x=x,range=range,iter=iter,tol=tol,ext=ext)
+        oa<- sureAdd1(object=o,y=y,x=x,range=range,iter=iter,tol=tol,ext=ext)
         if(oa$add && 2*(oa$loglik-o$loglik)>cv){
           o<- oa
           yes<- TRUE
-#          cat("+")
         }else{
-          od<- sureDrop1(obj=oa,y=y,x=x,range=range,iter=iter,tol=tol,ext=ext)
+          od<- sureDrop1(object=oa,y=y,x=x,range=range,iter=iter,tol=tol,ext=ext)
           if(od$drop && od$loglik>o$loglik+1e-8){
              o<- od
              yes<- TRUE
-#             cat("=")
           }
         }
       }
@@ -561,35 +284,30 @@ sureStep2.default<- function(obj, y, x, cv, direction=c("both", "backward", "for
   }else if(direction=="backward"){
     if(missing(cv)){
       cv<- Inf
-#      cat("\a\n  cv: replaced by Inf...\n\n")
     }
     yes<- TRUE
     while(yes){
       yes<- FALSE
-      od<- sureDrop1(obj=o,y=y,x=x,range=range,iter=iter,tol=tol,ext=ext)
+      od<- sureDrop1(object=o,y=y,x=x,range=range,iter=iter,tol=tol,ext=ext)
       if(od$drop && 2*(o$loglik-od$loglik)<cv){
         o<- od
         yes<- TRUE
-#        cat("-")
       }
     }
   }else if(direction=="forward"){
     if(missing(cv)){
       cv<- 0
-#      cat("\a\n  cv: replaced by 0...\n\n")
     }
     yes<- TRUE
     while(yes){
       yes<- FALSE
-      oa<- sureAdd1(obj=o,y=y,x=x,range=range,iter=iter,tol=tol,ext=ext)
+      oa<- sureAdd1(object=o,y=y,x=x,range=range,iter=iter,tol=tol,ext=ext)
       if(oa$add && 2*(oa$loglik-o$loglik)>cv){
         o<- oa
         yes<- TRUE
-#        cat("+")
       }
     }
   }
-#  cat("\n")
 
   oo<- list(loglik=o$loglik,b=o$b,sigma=o$sigma,v=o$v)
   class(oo)<- "sure"
@@ -607,7 +325,23 @@ sureStep2.default<- function(obj, y, x, cv, direction=c("both", "backward", "for
 # k: penalty, 0 if missing or <0
 # record(+/-y_j,x_j,loglikelihood)
 #-------------------------------------------------
-sureStep.default<- function(y, x, v, lower, upper, k,
+surStep<-
+   function(y,
+            x,
+            v,
+            lower,
+            upper,
+            k,
+            direction=c("both", "backward", "forward"),
+            iter=250,
+            max.terms=200,
+            steps=1000,
+            tol=1e-8)
+{
+   UseMethod("surStep")
+}
+
+surStep.default<- function(y, x, v, lower, upper, k,
   direction=c("both", "backward", "forward"),
   iter=250, max.terms=200, steps=1000, tol=1e-8){
   direction<- match.arg(direction)
@@ -638,7 +372,6 @@ sureStep.default<- function(y, x, v, lower, upper, k,
   
   if(missing(k)){
     k<- 0
-#    cat("\n...k was evaluated by 0...\n\n")
   }else if(k>1e+308){
     k<- 1e+308
   }else if(k<0){
@@ -706,37 +439,6 @@ sureStep.default<- function(y, x, v, lower, upper, k,
   oo
 }
 
-sureStep<-
-   function(y,
-            x,
-            v,
-            lower,
-            upper,
-            k,
-            direction=c("both", "backward", "forward"),
-            iter=250,
-            max.terms=200,
-            steps=1000,
-            tol=1e-8)
-{
-   UseMethod("sureStep")
-}
-
-sureStep2<- 
-   function(obj,
-            y,
-            x,
-            cv,
-            direction=c("both", "backward", "forward"),
-            range=NULL,
-            iter=250,
-            steps=1000,
-            tol=1e-8,
-            ext=FALSE)
-{
-   UseMethod("sureStep2")
-}
-
 #######################
 ### sure: epistasis ###
 #######################
@@ -744,7 +446,21 @@ sureStep2<-
 # x: n by m matrix
 # k: penalty, 0 if missing or <0
 #-------------------------------------------------
-sureEps<- function(y, x, v, k, direction=c("both", "backward", "forward"),
+sureEps<-
+   function(y,
+            x,
+            v,
+            k,
+            direction=c("both", "backward", "forward"),
+            iter=250,
+            max.terms=200,
+            steps=1000,
+            tol=1e-8)
+{
+   UseMethod("sureEps")
+}
+
+sureEps.default<- function(y, x, v, k, direction=c("both", "backward", "forward"),
   iter=250, max.terms=200, steps=1000, tol=1e-8){
   direction<- match.arg(direction)
   if(!is.matrix(y)) stop("y should be a matrix...")
@@ -775,7 +491,7 @@ sureEps<- function(y, x, v, k, direction=c("both", "backward", "forward"),
   }
   xad<- (m+1):indx
   if(direction=="backward") v<- upper
-  gv<- sureStep(y,x,v,lower=lower,upper=upper,k=k, direction=direction,
+  gv<- surStep(y,x,v,lower=lower,upper=upper,k=k, direction=direction,
   iter=iter, max.terms=max.terms, steps=steps, tol=tol)
   ge<- sureEst(y, x, v=gv$v, iter=iter, tol=tol)
   nb<- length(ge$b)
@@ -804,7 +520,7 @@ sureEps<- function(y, x, v, k, direction=c("both", "backward", "forward"),
   data.frame(rst)
 }
 
-############
-# the end
-############
+################################################################################
+# the end #
+###########
 

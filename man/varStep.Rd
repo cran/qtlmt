@@ -1,5 +1,4 @@
 \name{varStep}
-\Rdversion{0.1}
 \alias{varAdd1}
 \alias{varDrop1}
 \alias{varStep}
@@ -10,19 +9,19 @@ Variable selection
 Add a variable, drop a variable, or select a subset of variables via variable selection that are optimal for multivariate analysis.
 }
 \usage{
-varAdd1(x, grp, vin=NULL, scope=1:ncol(x), k=0)
+varAdd1(x, group, vin=NULL, scope=1:ncol(x), k=0)
 
-varDrop1(x, grp, vin=1:ncol(x), k=0)
+varDrop1(x, group, vin=1:ncol(x), k=0)
 
-varStep(x, grp, scope, k, kf=k/2, direction=c("both",
+varStep(x, group, scope, k, kf=k/2, direction=c("both",
    "forward","backward"))
 }
 \arguments{
   \item{x}{
-data matrix/frame. Columns are variables to select from.
+a data matrix/frame. Columns are variables to select from.
 }
-  \item{grp}{
-grouping indicator of observations.
+  \item{group}{
+a grouping indicator of observations.
 }
   \item{vin}{
 which variables (i.e., columns of \code{x}) already in model. It defines the initial model.
@@ -46,12 +45,12 @@ which variable to add (add1), which variable to drop (drop1), or a subset of var
 }
 
 \seealso{
-\code{\link{varGroup}} and \code{\link{varSelect}}
+\code{\link{varSelect}}
 }
 \examples{
 data(etrait)
-varAdd1(traits, grp=mdat[,42], vin=10, scope=1:ncol(traits))
-varStep(traits, grp=mdat[,42], k=12, scope=1:ncol(traits),
+varAdd1(traits, group=mdat[,42], vin=10, scope=1:ncol(traits))
+varStep(traits, group=mdat[,42], k=12, scope=1:ncol(traits),
    direction="back")
 }
 

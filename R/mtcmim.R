@@ -1,7 +1,12 @@
 
+####################################
+#  functions for model selection:  #
+# multivariate multiple regression #
 ################################################################################
+
+##################
 # part I: mtcmim #
-################################################################################
+##################
 Array<- function(k){
   A<- matrix(0,nrow=2^k,ncol=k)
   for(j in 1:k){
@@ -18,10 +23,9 @@ Array<- function(k){
   (A+1)/2
 }
 
-##########################################
 # mymtcmim: estimate parameters
-##########################################
-mymtcmim<- function(y,W,nws,ws,a,sigma,P,G,ngs,gs,b,init=1,iter=2500,tol=1e-8){
+mymtcmim<- function(y,W,nws,ws,a,sigma,P,G,ngs,gs,b,init=1,
+  iter=2500,tol=1e-8){
 # y: n by p matrix
 # W: n by nW matrix
 # nws: vector of length p, nws_j covariates for y_j, specified by ws
@@ -115,7 +119,7 @@ fgs<- function(gg){
 }
 
 fdist<- function(mpos){
-#creat dists from mpos if mpos$dist is not cumulative
+# creat dists from mpos if mpos$dist is not cumulative
   mid<- mpos$id; o<- order(mid,decreasing=F)
   mid<- mid[o]
   ch<- mpos$ch[o]
@@ -129,7 +133,7 @@ fdist<- function(mpos){
 }
 
 forder<- function(dists){
-#the i-th element is the ord[i]-th smallest
+# the i-th element is the ord[i]-th smallest
   ord<- order(dists$ch,dists$d)
   order(ord)
 }
@@ -210,8 +214,8 @@ fP<- function(A,mpos,mdat,dists,pp=1){
 }
 
 fs<- function(dv,win,dists,k,range=0){
-#k: k-th row of dists
-#range: genome-wide (0), the same chromosome (-1)
+# k: k-th row of dists
+# range: genome-wide (0), the same chromosome (-1)
   dv<- rbind(dv,c(mid=dists$mid[k],ch=dists$ch[k],dist=dists$d[k]))
   k0<- dists$ch[k]
   d0<- dists$d[k]
@@ -251,9 +255,7 @@ fqtdst<- function(qt,dst,ep=NULL){
    }
 }
 
-####################################################
 # mtcmim: multiple-trait composite-interval-mapping 
-####################################################
 mtcmim<- function(y,mpos,mdat,x,xid,dists,a,b,sigma,
   qtl=NULL,eps=NULL,win=Inf,range=0,pp=1,len=2,init=1,iter=2500,tol=1e-8){
 # y: n by p matrix, traits
@@ -334,8 +336,8 @@ mtcmim<- function(y,mpos,mdat,x,xid,dists,a,b,sigma,
     ngs<- numeric(0)
     gs<- numeric(0)
     b<- numeric(0)
-    out<- mymtcmim(y=y,W=xx,nws=nws,ws=ws,a=a,sigma=sigma,P=P,G=G,ngs=ngs,gs=gs,b=b,
-      init=init,iter=iter,tol=tol)
+    out<- mymtcmim(y=y,W=xx,nws=nws,ws=ws,a=a,sigma=sigma,P=P,G=G,
+      ngs=ngs,gs=gs,b=b,init=init,iter=iter,tol=tol)
   }else{
     nQ<- dim(dists)[1] #number of QTLs
     A<- Array(nQ)
@@ -346,8 +348,8 @@ mtcmim<- function(y,mpos,mdat,x,xid,dists,a,b,sigma,
     P<- fP(A,mpos,mdat,dists,pp)
     G<- fG(A,eps)
 
-    out<- mymtcmim(y=y,W=xx,nws=nws,ws=ws,a=a,sigma=sigma,P=P,G=G,ngs=ngs,gs=gs,b=b,
-      init=init,iter=iter,tol=tol)
+    out<- mymtcmim(y=y,W=xx,nws=nws,ws=ws,a=a,sigma=sigma,P=P,G=G,
+      ngs=ngs,gs=gs,b=b,init=init,iter=iter,tol=tol)
     lik2<- -Inf
     lik1<- -Inf
     lik<- out$loglik
@@ -417,13 +419,13 @@ mtcmim<- function(y,mpos,mdat,x,xid,dists,a,b,sigma,
   o
 }
 
-################################################################################
-# part II: mtcmim model selection --- general case#
-################################################################################
-##########################################################
+###################################
+# part II: mtcmim model selection #
+# --- general case                #
+###################################
+
 # create qtl, dists and b after one QTL added to qtl[[j]]
 # NOTE: add to the first place
-##########################################################
 ffa1<- function(j,obj,ch,mid,d){
   obj0<- obj
   obj0$eps<- NULL
@@ -457,9 +459,7 @@ ffa1<- function(j,obj,ch,mid,d){
   obj0
 }
 
-####################################################
 # create qtl, dists and b after qtl[[i]][j] dropped 
-####################################################
 ffd1<- function(i,j,obj){
   obj0<- obj
   obj0$eps<- NULL
@@ -493,9 +493,7 @@ ffd1<- function(i,j,obj){
   obj0
 }
 
-###########################################################
 # rearrange qtl and b so that qtl[[i]] in increasing order
-###########################################################
 ffo<- function(obj){
   ob<- obj
   np<- length(ob$qtl)
@@ -517,11 +515,10 @@ ffo<- function(obj){
   ob
 }
 
-################################
 # add one QTL to the model
-################################
-mtcmim.Add1<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,ext=FALSE){
-# obj: obj is an object from mtcmim or alike
+mtcmim.Add1<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
+  iter=2500,tol=1e-8,ext=FALSE){
+# object: object is an object from mtcmim or alike
 # xid: xid[[j]] defines which columns of x to be covariates for y_j
   np<- ncol(y)
   bos<- vector("list",np); bliks<- rep(-Inf,np)
@@ -534,7 +531,7 @@ mtcmim.Add1<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,ext=F
     loglik<- -Inf
     o0<- NULL
     for(n in 1:nrow(dvv)){
-      ob<- ffa1(j,obj,ch=dvv$ch[n],mid=dvv$mid[n],d=dvv$d[n])
+      ob<- ffa1(j,object,ch=dvv$ch[n],mid=dvv$mid[n],d=dvv$d[n])
       o0Tmp<- mtcmim(y,mpos,mdat,x=x,xid=xid,dists=ob$dists,a=ob$a,b=ob$b,sigma=ob$sigma,
         qtl=ob$qtl,eps=ob$eps,win=win,range=-1,pp=pp,len=len,init=1,iter=iter,tol=tol)
       if(o0Tmp$loglik>loglik){
@@ -549,24 +546,23 @@ mtcmim.Add1<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,ext=F
   o<- ffo(bos[[tt]])
 
   add<- FALSE
-  if(o$loglik>obj$loglik+1e-8) add<- TRUE
+  if(o$loglik>object$loglik+1e-8) add<- TRUE
   o$add<- add
 
   o
 }
 
-################################
 #drop one QTL from the model
-################################
-mtcmim.Drop1<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,ext=FALSE){
-#obj: obj from ffg0 or alike
+mtcmim.Drop1<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
+  iter=2500,tol=1e-8,ext=FALSE){
+# object: object from ffg0 or alike
   np<- ncol(y)
   drop<- TRUE
-  nn<- 0; for(jj in 1:np) nn<- nn+length(obj$qtl[[jj]])
+  nn<- 0; for(jj in 1:np) nn<- nn+length(object$qtl[[jj]])
   if(nn<1){
 #    cat("\a  no terms to drop...\n")
     drop<- FALSE
-    o<- obj
+    o<- object
   }
 
   if(ext){
@@ -576,9 +572,9 @@ mtcmim.Drop1<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,ext=
     lik0<- -Inf
     o1<- NULL
     for(i in 1:np){
-      nn0<- length(obj$qtl[[i]])
+      nn0<- length(object$qtl[[i]])
       if(nn0>0) for(j in 1:nn0){
-        ob<- ffd1(i,j,obj)
+        ob<- ffd1(i,j,object)
         o0<- mtcmim(y,mpos,mdat,x=x,xid=xid,dists=ob$dists,a=ob$a,b=ob$b,sigma=ob$sigma,
           qtl=ob$qtl,eps=ob$eps,win=win,range=-1,pp=pp,len=len,init=1,iter=iter,tol=tol)
         if(o0$loglik>lik0+1e-8){
@@ -594,11 +590,12 @@ mtcmim.Drop1<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,ext=
   o
 }
 
-mtcmim.Step<- function(obj,y,x,xid,mpos,mdat,cv=0,direction=c("both","backward","forward"),
-  pp=1,len=1,iter=2500,tol=1e-8,ext=FALSE){
+mtcmim.Step<- function(object,y,x,xid,mpos,mdat,cv=0,
+  direction=c("both","backward","forward"), pp=1,len=1,
+  iter=2500,tol=1e-8,ext=FALSE){
   direction<- match.arg(direction)
   
-  o<- obj
+  o<- object
   if(direction=="both"){
     yes<- TRUE
     if(missing(cv)){
@@ -606,19 +603,22 @@ mtcmim.Step<- function(obj,y,x,xid,mpos,mdat,cv=0,direction=c("both","backward",
     }
     while(yes){
       yes<- FALSE
-      od<- mtcmim.Drop1(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
+      od<- mtcmim.Drop1(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,
+        iter=iter,tol=tol,ext=ext)
       if(od$drop && 2*(o$loglik-od$loglik)<cv){
         o<- od
         yes<- TRUE
 #        cat("-")
       }else{
-        oa<- mtcmim.Add1(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
+        oa<- mtcmim.Add1(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,
+          iter=iter,tol=tol,ext=ext)
         if(oa$add && 2*(oa$loglik-o$loglik)>cv){
           o<- oa
           yes<- TRUE
 #          cat("+")
         }else{
-          od<- mtcmim.Drop1(oa,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
+          od<- mtcmim.Drop1(oa,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,
+            iter=iter,tol=tol,ext=ext)
           if(od$drop && od$loglik>o$loglik+1e-8){
              o<- od
              yes<- TRUE
@@ -635,7 +635,8 @@ mtcmim.Step<- function(obj,y,x,xid,mpos,mdat,cv=0,direction=c("both","backward",
     yes<- TRUE
     while(yes){
       yes<- FALSE
-      od<- mtcmim.Drop1(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
+      od<- mtcmim.Drop1(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,
+        iter=iter,tol=tol,ext=ext)
       if(od$drop && 2*(o$loglik-od$loglik)<cv){
         o<- od
         yes<- TRUE
@@ -665,13 +666,13 @@ mtcmim.Step<- function(obj,y,x,xid,mpos,mdat,cv=0,direction=c("both","backward",
   o
 }
 
-################################################################################
-# part III: mtcmim model selection --- special case (zeng 2000)#
-################################################################################
-###############################################
+####################################
+# part III: mtcmim model selection #
+# --- special case (zeng 2000)     #
+####################################
+
 # create qtl, dists and b after adding one QTL
 # NOTE: add to the first place
-###############################################
 ffa1All<- function(obj,ch,mid,d){
   obj0<- obj
   obj0$eps<- NULL
@@ -697,9 +698,7 @@ ffa1All<- function(obj,ch,mid,d){
   obj0
 }
 
-######################################################
 # create qtl, dists and b after dropping the j-th QTL 
-######################################################
 ffd1All<- function(j,obj){
   obj0<- obj
   obj0$eps<- NULL
@@ -719,9 +718,7 @@ ffd1All<- function(j,obj){
   obj0
 }
 
-###########################################################
 # rearrange qtl and b so that qtl[[i]] in increasing order
-###########################################################
 ffoAll<- function(obj){
   ob<- obj
   np<- length(ob$qtl)
@@ -732,9 +729,7 @@ ffoAll<- function(obj){
   ob
 }
 
-###############################
 # test if qtl[[i]] == qtl[[i]] 
-###############################
 ffequalAll<- function(obj){
   np<- length(obj$qtl)
   if(np>1) for(j in 2:np){
@@ -742,13 +737,12 @@ ffequalAll<- function(obj){
   }
 }
 
-################################
 #add one QTL to the model
-################################
-mtcmim.Add1All<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,ext=FALSE){
-# obj: obj is an object from mtcmim or alike
+mtcmim.Add1All<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
+  iter=2500,tol=1e-8,ext=FALSE){
+# object: object is an object from mtcmim or alike
 # xid: xid[[j]] defines which columns of x to be covariates for y_j
-  ffequalAll(obj)
+  ffequalAll(object)
   np<- ncol(y)
   bos<- vector("list",np); bliks<- rep(-Inf,np)
   dvv<- div(mpos,len=len)
@@ -760,7 +754,7 @@ mtcmim.Add1All<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,ex
   loglik<- -Inf
   o0<- NULL
   for(n in 1:nrow(dvv)){
-    ob<- ffa1All(obj,ch=dvv$ch[n],mid=dvv$mid[n],d=dvv$d[n])
+    ob<- ffa1All(object,ch=dvv$ch[n],mid=dvv$mid[n],d=dvv$d[n])
     o0Tmp<- mtcmim(y,mpos,mdat,x=x,xid=xid,dists=ob$dists,a=ob$a,b=ob$b,sigma=ob$sigma,
       qtl=ob$qtl,eps=ob$eps,win=win,range=-1,pp=pp,len=len,init=1,iter=iter,tol=tol)
     if(o0Tmp$loglik>loglik){
@@ -771,26 +765,25 @@ mtcmim.Add1All<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,ex
   o<- ffoAll(o0)
 
   add<- FALSE
-  if(o$loglik>obj$loglik+1e-8) add<- TRUE
+  if(o$loglik>object$loglik+1e-8) add<- TRUE
   o$add<- add
 
   o
 }
 
-################################
-#drop one QTL from the model
-################################
-mtcmim.Drop1All<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,ext=FALSE){
-#obj: obj from ffg0 or alike
-  ffequalAll(obj)
+# drop one QTL from the model
+mtcmim.Drop1All<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
+  iter=2500,tol=1e-8,ext=FALSE){
+# object: object from ffg0 or alike
+  ffequalAll(object)
 
   np<- ncol(y)
   drop<- TRUE
-  nn<- length(obj$qtl[[1]])
+  nn<- length(object$qtl[[1]])
   if(nn<1){
 #    cat("\a  no terms to drop...\n")
     drop<- FALSE
-    o<- obj
+    o<- object
   }
 
   if(ext){
@@ -800,7 +793,7 @@ mtcmim.Drop1All<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,e
     lik0<- -Inf
     o1<- NULL
     for(j in 1:nn){
-      ob<- ffd1All(j,obj)
+      ob<- ffd1All(j,object)
       o0<- mtcmim(y,mpos,mdat,x=x,xid=xid,dists=ob$dists,a=ob$a,b=ob$b,sigma=ob$sigma,
         qtl=ob$qtl,eps=ob$eps,win=win,range=-1,pp=pp,len=len,init=1,iter=iter,tol=tol)
       if(o0$loglik>lik0+1e-8){
@@ -815,12 +808,13 @@ mtcmim.Drop1All<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,iter=2500,tol=1e-8,e
   o
 }
 
-mtcmim.StepAll<- function(obj,y,x,xid,mpos,mdat,cv=0,direction=c("both","backward","forward"),
-  pp=1,len=1,iter=2500,tol=1e-8,ext=FALSE){
-  ffequalAll(obj)
+mtcmim.StepAll<- function(object,y,x,xid,mpos,mdat,cv=0,
+  direction=c("both","backward","forward"), pp=1,len=1,
+  iter=2500,tol=1e-8,ext=FALSE){
+  ffequalAll(object)
   direction<- match.arg(direction)
   
-  o<- obj
+  o<- object
   if(direction=="both"){
     yes<- TRUE
     if(missing(cv)){
@@ -828,19 +822,22 @@ mtcmim.StepAll<- function(obj,y,x,xid,mpos,mdat,cv=0,direction=c("both","backwar
     }
     while(yes){
       yes<- FALSE
-      od<- mtcmim.Drop1All(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
+      od<- mtcmim.Drop1All(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,
+        iter=iter,tol=tol,ext=ext)
       if(od$drop && 2*(o$loglik-od$loglik)<cv){
         o<- od
         yes<- TRUE
 #        cat("-")
       }else{
-        oa<- mtcmim.Add1All(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
+        oa<- mtcmim.Add1All(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,
+          iter=iter,tol=tol,ext=ext)
         if(oa$add && 2*(oa$loglik-o$loglik)>cv){
           o<- oa
           yes<- TRUE
 #          cat("+")
         }else{
-          od<- mtcmim.Drop1All(oa,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
+          od<- mtcmim.Drop1All(oa,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
+            len=len,iter=iter,tol=tol,ext=ext)
           if(od$drop && od$loglik>o$loglik+1e-8){
              o<- od
              yes<- TRUE
@@ -857,7 +854,8 @@ mtcmim.StepAll<- function(obj,y,x,xid,mpos,mdat,cv=0,direction=c("both","backwar
     yes<- TRUE
     while(yes){
       yes<- FALSE
-      od<- mtcmim.Drop1All(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
+      od<- mtcmim.Drop1All(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,
+        iter=iter,tol=tol,ext=ext)
       if(od$drop && 2*(o$loglik-od$loglik)<cv){
         o<- od
         yes<- TRUE
@@ -872,7 +870,8 @@ mtcmim.StepAll<- function(obj,y,x,xid,mpos,mdat,cv=0,direction=c("both","backwar
     yes<- TRUE
     while(yes){
       yes<- FALSE
-      oa<- mtcmim.Add1All(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
+      oa<- mtcmim.Add1All(o,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,len=len,
+        iter=iter,tol=tol,ext=ext)
       if(oa$add && 2*(oa$loglik-o$loglik)>cv){
         o<- oa
         yes<- TRUE
@@ -887,52 +886,52 @@ mtcmim.StepAll<- function(obj,y,x,xid,mpos,mdat,cv=0,direction=c("both","backwar
   o
 }
 
-#########################
-# unified step function #
-#########################
-
-mtcmimAdd1.default<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,type=1,iter=2500,tol=1e-8,ext=FALSE){
+# unified step function
+mtcmimAdd1.default<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,type=1,
+  iter=2500,tol=1e-8,ext=FALSE){
   if(type==1){
-    mtcmim.Add1(obj=obj,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
+    mtcmim.Add1(object=object,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
       len=len,iter=iter,tol=tol,ext=ext)
   }else if(type==2){
-    qtl<- unlist(obj$qtl)
+    qtl<- unlist(object$qtl)
        qtl<- sort(unique(qtl))
-    for(n in 1:length(obj$qtl)) obj$qtl[[n]]<- qtl
-    mtcmim.Add1All(obj=obj,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
+    for(n in 1:length(object$qtl)) object$qtl[[n]]<- qtl
+    mtcmim.Add1All(object=object,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
       len=len,iter=iter,tol=tol,ext=ext)
   }else stop("type 1 or 2 only.")
 }
 
-mtcmimDrop1.default<- function(obj,y,x,xid,mpos,mdat,pp=1,len=1,type=1,iter=2500,tol=1e-8,ext=FALSE){
+mtcmimDrop1.default<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,type=1,
+  iter=2500,tol=1e-8,ext=FALSE){
   if(type==1){
-    mtcmim.Drop1(obj=obj,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
+    mtcmim.Drop1(object=object,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
       len=len,iter=iter,tol=tol,ext=ext)
   }else if(type==2){
-    qtl<- unlist(obj$qtl)
+    qtl<- unlist(object$qtl)
        qtl<- sort(unique(qtl))
-    for(n in 1:length(obj$qtl)) obj$qtl[[n]]<- qtl
-    mtcmim.Drop1All(obj=obj,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
+    for(n in 1:length(object$qtl)) object$qtl[[n]]<- qtl
+    mtcmim.Drop1All(object=object,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
       len=len,iter=iter,tol=tol,ext=ext)
   }else stop("type 1 or 2 only.")
 }
 
-mtcmimStep.default<- function(obj,y,x,xid,mpos,mdat,cv=0,direction=c("both","backward","forward"),
+mtcmimStep.default<- function(object,y,x,xid,mpos,mdat,cv=0,
+  direction=c("both","backward","forward"),
   pp=1,len=1,type=1,iter=2500,tol=1e-8,ext=FALSE){
   if(type==1){
-    mtcmim.Step(obj=obj,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,cv=cv,
+    mtcmim.Step(object=object,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,cv=cv,
       direction=direction,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
   }else if(type==2){
-    qtl<- unlist(obj$qtl)
+    qtl<- unlist(object$qtl)
        qtl<- sort(unique(qtl))
-    for(n in 1:length(obj$qtl)) obj$qtl[[n]]<- qtl
-    mtcmim.StepAll(obj=obj,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,cv=cv,
+    for(n in 1:length(object$qtl)) object$qtl[[n]]<- qtl
+    mtcmim.StepAll(object=object,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,cv=cv,
       direction=direction,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
   }else stop("type 1 or 2 only.")
 }
 
 mtcmimAdd1<- 
-   function(obj,
+   function(object,
             y,
             x,
             xid,
@@ -949,7 +948,7 @@ mtcmimAdd1<-
 }
 
 mtcmimDrop1<- 
-   function(obj,
+   function(object,
             y,
             x,
             xid,
@@ -966,7 +965,7 @@ mtcmimDrop1<-
 }
 
 mtcmimStep<- 
-   function(obj,
+   function(object,
             y,
             x,
             xid,
@@ -983,4 +982,8 @@ mtcmimStep<-
 {
    UseMethod("mtcmimStep")
 }
+
+################################################################################
+# the end #
+###########
 

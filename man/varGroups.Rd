@@ -1,5 +1,4 @@
 \name{varGroup}
-\Rdversion{0.1}
 \alias{varGroup}
 \title{
 Group variables
@@ -8,16 +7,15 @@ Group variables
 Group variables via variable selection such that the grouped variables are optimal for multivariate analysis.
 }
 \usage{
-varGroup(x, z, zscope=NULL, k=qf(0.95,1,nrow(x)-2),
-   kf=k/2, method=c("pool","best"), direction=c("both",
-   "forward","backward"))
+varGroup(x, z, zscope=NULL, k=qf(0.95,1,nrow(x)-2), kf=k/2,
+   method=c("pool","best"), direction=c("both","forward","backward"))
 }
 \arguments{
   \item{x}{
-data matrix/frame. Columns are variables to select from.
+a data matrix/frame. Columns are variables to select from.
 }
   \item{z}{
-data matrix/frame. Columns are variables with elements 1 or not 1 (any others).
+a data matrix/frame. Columns are variables with elements 1 or not 1 (any others).
 }
   \item{zscope}{
 which variables in \code{z} to be used for grouping; all if "NULL".
@@ -40,9 +38,6 @@ forward selection, backward elimination or both stepwise.
 indicators of grouped variables.
 }
 
-\seealso{
-\code{\link{varSelect}} and \code{\link{varStep}}
-}
 \examples{
 data(etrait)
 varGroup(traits, mdat, zscope=c(42,55), method="pool")

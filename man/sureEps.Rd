@@ -1,5 +1,4 @@
 \name{sureEps}
-\Rdversion{0.1}
 \alias{sureEps}
 \title{
 Epistasis in a SURE model
@@ -13,13 +12,13 @@ sureEps(y, x, v, k, direction=c("both","backward","forward"),
 }
 \arguments{
   \item{y}{
-n by p matrix, whose columns are dependent variables.
+a n by p matrix, whose columns are dependent variables.
 }
   \item{x}{
-n by m matrix, whose columns are predictor variables
+a n by m matrix, whose columns are predictor variables
 }
   \item{v}{
-list; v[[j]] indicates which x's in the model for y[,j], between which possible epistasis is looked for.
+a list; v[[j]] indicates which x's in the model for y[,j], between which possible epistasis is looked for.
 }
   \item{k}{
 penalty, 0 if missing or <0.
@@ -46,7 +45,7 @@ associated traits, epistatic markers and p-values
 }
 
 \seealso{
-\code{\link{sureStep}}
+\code{\link{surStep}}
 }
 \examples{
 data(etrait)
@@ -59,10 +58,10 @@ for(k in 1:ncol(y)){
    upper[[k]]<- 1:ncol(x)
 }
 \dontrun{
-g<- sureStep(y, x, v=v, upper=upper, k=19, direction="both",
+o<- surStep(y, x, v=v, upper=upper, k=19, direction="both",
    iter=250, max.terms=250, steps=2000, tol=1e-6)
 neps<- 6 # suppose there are 6 possible epistatic effects
-geps<- sureEps(y, x, g$v, k=qchisq(1-0.05/neps,1), direction="backward",
+oeps<- sureEps(y, x, o$v, k=qchisq(1-0.05/neps,1), direction="backward",
   iter=250, max.terms=200, steps=1000, tol=1e-8)
 }
 }

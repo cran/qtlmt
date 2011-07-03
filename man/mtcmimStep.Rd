@@ -1,5 +1,4 @@
 \name{mtcmimStep}
-\Rdversion{0.1}
 \alias{mtcmimAdd1}
 \alias{mtcmimDrop1}
 \alias{mtcmimStep}
@@ -11,34 +10,34 @@ MTCMIM model selection
 Model selection for multiple-trait composite multiple-interval mapping.
 }
 \usage{
-mtcmimAdd1(obj, y, x, xid, mpos, mdat, pp=1, len=1, type=1,
+mtcmimAdd1(object, y, x, xid, mpos, mdat, pp=1, len=1, type=1,
    iter=2500, tol=1e-8, ext=FALSE)
 
-mtcmimDrop1(obj, y, x, xid, mpos, mdat, pp=1, len=1, type=1,
+mtcmimDrop1(object, y, x, xid, mpos, mdat, pp=1, len=1, type=1,
    iter=2500, tol=1e-8, ext=FALSE)
 
-mtcmimStep(obj, y, x, xid, mpos, mdat, cv=0,
-   direction=c("both", "backward", "forward"), pp=1, len=1,
+mtcmimStep(object, y, x, xid, mpos, mdat, cv=0,
+   direction=c("both","backward","forward"), pp=1, len=1,
    type=1, iter=2500, tol=1e-8, ext=FALSE)
 }
 \arguments{
-  \item{obj}{
-object of class \code{\link{mtcmim}}.
+  \item{object}{
+an object of class \code{\link{mtcmim}}.
 }
   \item{y}{
-n by p matrix, whose columns are dependent variables.
+a n by p matrix, whose columns are dependent variables.
 }
   \item{x}{
 covariates; n by m numerical matrix.
 }
   \item{xid}{
-list of length p; xid[[j]] specifies columns of x as covariates for y[,j] .
+a list of length p; xid[[j]] specifies columns of x as covariates for y[,j] .
 }
   \item{mpos}{
-data frame (id=marker index, ch=chromosome id, m=marker index on the chromosome, dist=genetic position in cM on the chromosome).  Chromosome id should be an integer.
+a data frame (id=marker index, ch=chromosome id, m=marker index on the chromosome, dist=genetic position in cM on the chromosome).  Chromosome id should be an integer.
 }
   \item{mdat}{
-matrix of n rows; marker genotypes (1 or 0). columns should correspond to markers in the order.
+a matrix of n rows; marker genotypes (1 or 0). columns should correspond to markers in the order.
 }
   \item{pp}{
 mapping population: BC-1, RIL-selfing-2, RIL-brother-sister-mating-3.
@@ -50,7 +49,7 @@ step length in search.
 1 if traits can have the different sets of covariates and QTL, 2 if all have the same set of covariates and QTL.
 }
   \item{ext}{
-whether to perform an extensive search.
+whether to perform an extensive search for an "optimal" model with the same number of QTL per phenotype.
 }
   \item{cv}{
 critical value used in the likelihood ratio test to determine adding/dropping a QTL.
@@ -87,15 +86,14 @@ Currently, not able to include epistatic effects.
 data(etrait)
 y<- traits[,1:5]
 qtl<- vector("list",5); qtl[[1]]<- c(1,2)
-eps<- data.frame(y=1,q1=1,q2=2)
 dists<- dists[c(4,11),]
 x<- mdat - 3/2
 \dontrun{
-o<- mtcmim(y,mpos,mdat,dists=dists,
-   qtl=qtl,eps=eps,win=5,range=-1,pp=2,len=1)
-of<- mtcmimAdd1(o,y=y,mpos=mpos,mdat=mdat,pp=2,len=3)
-os<- mtcmimStep(of,y=y,mpos=mpos,mdat=mdat,cv=25,
-   direction="both",pp=2,len=3)
+o<- mtcmim(y, mpos, mdat, dists=dists, qtl=qtl, eps=NULL,
+   win=5, range=-1, pp=2, len=1)
+of<- mtcmimAdd1(o, y=y, mpos=mpos, mdat=mdat, pp=2, len=3)
+os<- mtcmimStep(of, y=y, mpos=mpos, mdat=mdat, cv=25,
+   direction="both", pp=2, len=3)
 }
 }
 

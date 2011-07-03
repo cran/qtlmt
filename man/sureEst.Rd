@@ -1,5 +1,4 @@
 \name{sureEst}
-\Rdversion{0.1}
 \alias{sureEst}
 \title{
 SURE model parameter estimation
@@ -8,17 +7,17 @@ SURE model parameter estimation
 Estimate parameters in a SURE model.
 }
 \usage{
-sureEst(y,x,v,sigma,iter=250,tol=1e-8)
+sureEst(y, x, v, sigma, iter=250, tol=1e-8)
 }
 \arguments{
   \item{y}{
-n by p matrix, whose columns are dependent variables.
+a n by p matrix, whose columns are dependent variables.
 }
   \item{x}{
-n by m matrix, whose columns are predictor variables to select from.
+a n by m matrix, whose columns are predictor variables to select from.
 }
   \item{v}{
-list; v[[j]] indicates which x's in the model for y[,j].
+a list; v[[j]] indicates which x's in the model for y[,j].
 }
   \item{sigma}{
 residual variance-covarance matrix (if given).
@@ -38,23 +37,13 @@ a list with the following components:
   \item{sigma:}{estimated residual variance-covariance}
 }
 
-\seealso{
-\code{\link{sureStep}}
-}
 \examples{
 data(etrait)
 x<- as.matrix(3/2-mdat)
 y<- as.matrix(traits)[,1:3]
-v<- list()
-upper<- list()
-for(k in 1:ncol(y)){
-   v[[k]]<- numeric(0)
-   upper[[k]]<- 1:ncol(x)
-}
+v<- list(c(1,25,50),numeric(0),3)
 \dontrun{
-g<- sureStep(y, x, v=v, upper=upper, k=19, direction="both",
-   iter=250, max.terms=250, steps=2000, tol=1e-6)
-ge<- sureEst(y, x, v=g$v, iter=250, tol=1e-8)
+o<- sureEst(y, x, v=v, iter=250, tol=1e-8)
 }
 }
 

@@ -1,23 +1,24 @@
 
+############################
+#  miscellaneous functions #
 ################################################################################
-# part I: functions for generating data #
-################################################################################
+
 #####################
-# general functions #
+# generic functions #
 #####################
 haldane<-  function(c1){
-##c to d (M)
+# c to d (M)
   -0.5*log(1-2*c1)
 }
 
 haldane.inv<- function(d){
-##d (M) to c
+# d (M) to c
   (1-exp(-2*d))/2
 }
 
 recomb.rate.ac<- function(r.ab,r.bc){
-##calculate recombination rate ("a-b-c")
-##no interference assumed
+# calculate recombination rate ("a-b-c")
+# no interference assumed
   r.ab+r.bc-2*r.ab*r.bc
 }
 
@@ -27,8 +28,8 @@ recomb.rate.bc<- function(r.ab,r.ac){
 
 #pp: population, 1=BC, 2=RIL-selfing, 3=RIL-brother-sister-mating
 getp<- function(m1,m2,d,pp=1){
-##P(m2|m1)
-##d: cM, dist between m1 and m2
+# P(m2|m1)
+# d: cM, dist between m1 and m2
   c<- haldane.inv(d/100)
   if(pp==1){
     cc<- c
@@ -36,7 +37,7 @@ getp<- function(m1,m2,d,pp=1){
     cc<- 2*c/(1+2*c)
   }else if(pp==3){
     cc<- 4*c/(1+6*c)
-  } else stop("\a  Only BC-1 or RIL (selfing-2, brother-sister mating-3) considered...")
+  }else stop("\a  Only BC-1 or RIL (selfing-2, brother-sister mating-3) considered...")
   if(m1==m2) cc<- 1-cc
   cc
 }
@@ -112,7 +113,7 @@ div<- function(mpos,len=1){
 }
 
 #########################
-# create mpos and dists 
+# create mpos and dists #
 #########################
 gv2mpos<- function(gmap,v){
 # v: g$v where g is a SUR object
@@ -134,9 +135,9 @@ gv2mpos<- function(gmap,v){
   list(mpos=mpos,dists=dists)
 }
 
-##################
-# xid: covariates 
-##################
+###################
+# xid: covariates #
+###################
 xid1ch<- function(mpos,v,k){
 # v: g$v where g is a SUR object
   np<- length(v)
@@ -148,10 +149,10 @@ xid1ch<- function(mpos,v,k){
   xid
 }
 
-############################
-# extract covariate effects
-############################
-#a: obj$a
+#############################
+# extract covariate effects #
+#############################
+#a: object$a
 xeff<- function(a,xid){
   eff<- vector("list",length(xid))
   ii<- 0
@@ -164,19 +165,23 @@ xeff<- function(a,xid){
   eff
 }
 
-######################
-# extract QTL effects
-######################
-#obj: mtcmim object
-qeff<- function(obj){
-  eff<- vector("list",length(obj$qtl))
+#######################
+# extract QTL effects #
+#######################
+#object: mtcmim object
+qeff<- function(object){
+  eff<- vector("list",length(object$qtl))
   ii<- 0
-  for(k in 1:length(obj$qtl)){
-    x<- obj$qtl[[k]]; nx<- length(x)
-    if(nx>0) eff[[k]]<- obj$b[(ii+1):(ii+nx)]
+  for(k in 1:length(object$qtl)){
+    x<- object$qtl[[k]]; nx<- length(x)
+    if(nx>0) eff[[k]]<- object$b[(ii+1):(ii+nx)]
     ii<- ii+nx
   }
 
-  list(main=eff,eps=obj$b[-c(1:ii)])
+  list(main=eff,eps=object$b[-c(1:ii)])
 }
+
+################################################################################
+# the end #
+###########
 
