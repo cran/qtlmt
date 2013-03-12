@@ -1,5 +1,7 @@
 
+2013/03/12 replace C function 'exit' with R function 'error'
+   and C++ function 'cout' with R function 'Rprintf'. Also
+   remove '.First.lib' and change '.onLoad' to '.onAttach'.
 2011/07/03 make few modifications
-
 2011/06/26 resolve the hidden file copying issue in Windows
 

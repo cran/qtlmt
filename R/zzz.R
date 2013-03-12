@@ -1,7 +1,8 @@
-.First.lib <- function(lib, pkg) {
-   library.dynam("qtlmt", pkg, lib)
+.onAttach <- function(lib, pkg){
+   packageStartupMessage("R/qtlmt is loaded")
 }
-.onLoad <- function(lib, pkg) print("R/qtlmt is loaded")
 .noGenerics <- TRUE
-.onUnload <- function(libpath) library.dynam.unload("qtlmt", libpath)
+.onUnload <- function(libpath){
+   library.dynam.unload("qtlmt", libpath)
+}
 

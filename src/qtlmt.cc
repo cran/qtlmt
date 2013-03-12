@@ -331,7 +331,7 @@ void i_to_a(int i,char buff[],int base){
 	}
 	buff[indx]='\0';
 	if(indx>len){
-		error(_("Error: array provided is too short!\n"));
+		error(_("Array provided is too short!\n"));
 	}
 	delete[] tmp;
 }
@@ -688,9 +688,7 @@ void svd(double **a, int m, int n, double w[], double **v){
 				break;
 			}
 			if (its == 250){
-				Rf_warning("svd: convergence might have failed in 250 iterations"); 
-//				cout<<"\a	svd: convergence might have failed in 250 iterations"<<endl; 
-//				exit(1);
+				Rf_warning("svd: convergence might have failed in 250 iterations.\n"); 
 			}
 			x=w[l];
 			nm=k-1; 
@@ -752,14 +750,14 @@ void svd(double **a, int m, int n, double w[], double **v){
  --------------------------------------------*/
 template <class T>
 void arr_print(T* arr,int m,int n,int width){
-	cout<<endl;
+	Rprintf("\n");
 	for(int i=0;i<m;i++){
 		for(int j=0;j<n;j++){
 			cout<<setw(width)<<arr[i*n+j];
 		}
-		cout<<'\n';
+		Rprintf("\n");
 	}
-	cout<<endl;
+	Rprintf("\n");
 }
 
 /*--------------------------------------------
@@ -768,14 +766,14 @@ void arr_print(T* arr,int m,int n,int width){
  --------------------------------------------*/
 template <class T>
 void arr_print(T** arr,int m,int n,int width){
-	cout<<endl;
+	Rprintf("\n");
 	for(int i=0;i<m;i++){
 		for(int j=0;j<n;j++){
 			cout<<setw(width)<<arr[i][j];
 		}
-		cout<<'\n';
+		Rprintf("\n");
 	}
-	cout<<endl;
+	Rprintf("\n");
 }
 
 /*--------------------------------------------------
@@ -1368,7 +1366,7 @@ double sureEst(double** y,int n,int p,double** x,int m,int* nqs,int* qs,
 			its--;
 		}
 	}else{
-      cout<<"ini_sigma="<<ini_sigma<<endl;
+       Rprintf("ini_sigma = %d\n",ini_sigma);
 		error(_("sureEst: wrong ini_sigma ...\n"));
 	}
 	for(int j=0;j<p;j++){
@@ -1451,7 +1449,7 @@ double sureEst(double** y,int n,int p,double** x,int m,int* nqs,int* qs,
 		mx = abs(la-la1);
 		iter--;
 		if(iter<0){
-			cout<<"sureEst: convergence failed..."<<endl;
+			Rprintf("sureEst: convergence failed...\n");
 			break;
 		}
 	}while(mx>tol);
@@ -2121,7 +2119,7 @@ void fsigma(double* y,double** z,double** G,double** W,int n,int m,int k,int l,
       s += z[ir][ic]*(y0[ir]-mu[ic])*(y0[ir]-mu[ic]);
     }
   }
-  sigma = sqrt(s/n); //cout<<sigma<<endl;
+  sigma = sqrt(s/n);
   delete[] mu; delete[] y0;
 }
 
@@ -2155,7 +2153,7 @@ double mimEst(double* y,double** P,double** G,double** W,int n,int m,int k,int l
     mx = abs(la-la1);
     iter--;
     if(iter<0){
-      cout<<"mim: convergence failed..."<<endl;
+      Rprintf("mim: convergence failed...\n");
       break;
     }
   }while(mx>tol);
@@ -2212,7 +2210,7 @@ double Loglik(double** y,int n,int p,double** P,int np,
 			tmp = exp(-tmp/2.0);
 			tt += tmp/den;
 		}
-		else {cout<<"np: wrong..."<<endl; exit(1);}
+		else {error(_("np: wrong...\n"));}
 
 		if(tt>0) lik += log(tt);
 	}
@@ -2265,7 +2263,7 @@ void fmb(int p,double** G,int np,int* ngs,int* gs,double* b,double** mb){
 		delete[] ii;
 	}
 	else if(np==1)for(int j=0;j<p;j++) mb[0][j]=0.0;
-	else {cout<<"np: wrong..."<<endl; exit(1);}
+	else {error(_("np: wrong...\n"));}
 }
 /*------------------------------------------------------------------
  update pi (i.e., z), a(covariate effects), b(i.e., beta) and sigma
@@ -2297,7 +2295,7 @@ void fz(double** y,int n,int p,double** P,int np,double** ma,double** mb,
 		}
 	}
 	else if(np==1) for(int i=0;i<n;i++) z[i][0]=1.0;
-	else {cout<<"np: wrong..."<<endl; exit(1);}
+	else {error(_("np: wrong...\n"));}
 	delete[] y0;
 }
 
@@ -2364,7 +2362,7 @@ void fa(double** y,int n,int p,double** W,int* nws,int* ws,
 //M-step in EM algorithm
 void fb(double** y,int n,int p,double** G,int np,int* ngs,int* gs,
 	double** z,double** ma,double** mb,double** invS,double* b){
-	if(np<=1){cout<<"b: no exits..."<<endl; exit(1);}
+	if(np<=1){error(_("b: no exits...\n"));}
 
 	int* kk=new int[p+1];
 	double* y0=new double[p];
@@ -2500,7 +2498,7 @@ double mtcmimEst(double** y,int n,int p,double** P,int np,
 		mx = abs(la-la1);
 		iter--;
 		if(iter<0){
-			cout<<"mtcmim: convergence failed..."<<endl;
+			Rprintf("mtcmim: convergence failed...\n");
 			break;
 		}
 	}while(mx>tol);
@@ -2524,8 +2522,7 @@ double getp(int m1,int m2,double d,int pp=1){
 	if(pp==2) p=2*p/(1+2*p);
 	else if(pp==3) p=4*p/(1+6*p);
 	else if(pp!=1){
-		cout<<"Only allowed: BC-1, RIL-selfing-2 or RIL-brother-sister-mating-3..."<<endl;
-		exit(1);
+		error(_("Only allowed: BC-1, RIL-selfing-2 or RIL-brother-sister-mating-3...\n"));
 	}
 	if(m1==m2) p=1-p;
 
