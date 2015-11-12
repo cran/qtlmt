@@ -8,7 +8,7 @@ Look for epistasis between existing QTL in a model via model selection.
 }
 \usage{
 sureEps(y, x, v, k, direction=c("both","backward","forward"),
-   iter=250, max.terms=200, steps=1000, tol=1e-8)
+   iter=10000, max.terms=200, steps=1000, tol=1e-12)
 }
 \arguments{
   \item{y}{
@@ -49,7 +49,7 @@ associated traits, epistatic markers and p-values
 }
 \examples{
 data(etrait)
-x<- as.matrix(3/2-mdat)
+x<- as.matrix(mdat-1/2)
 y<- as.matrix(traits)[,1:3]
 v<- list()
 upper<- list()
@@ -59,10 +59,10 @@ for(k in 1:ncol(y)){
 }
 \dontrun{
 o<- surStep(y, x, v=v, upper=upper, k=19, direction="both",
-   iter=250, max.terms=250, steps=2000, tol=1e-6)
+   iter=250, max.terms=250, steps=2000, tol=1e-12)
 neps<- 6 # suppose there are 6 possible epistatic effects
 oeps<- sureEps(y, x, o$v, k=qchisq(1-0.05/neps,1), direction="backward",
-  iter=250, max.terms=200, steps=1000, tol=1e-8)
+  iter=250, max.terms=200, steps=1000, tol=1e-12)
 }
 }
 

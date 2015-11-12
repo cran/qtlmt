@@ -9,7 +9,7 @@ Multiple-trait composite multiple-interval mapping.
 \usage{
 mtcmim(y, mpos, mdat, x, xid, dists, a, b, sigma, qtl=NULL,
    eps=NULL, win=Inf, range=0, pp=1, len=2, init=1,
-   iter=2500,tol=1e-8)
+   iter=10000,tol=1e-12)
 }
 \arguments{
   \item{y}{
@@ -74,13 +74,13 @@ Given the covariates, the number of QTL and epistasis that are specified for eac
 
 \value{
 a list with the following components:
-  \item{loglik:}{log-likelihood of the final model}
-  \item{a:}{covariate effects}
-  \item{b:}{QTL effects}
-  \item{sigma:}{residual variance-covariance}
-  \item{qtl:}{QTL for each trait}
-  \item{eps:}{epistatic terms}
-  \item{dists:}{QTL locations}
+  \item{loglik}{log-likelihood of the final model}
+  \item{a}{covariate effects}
+  \item{b}{QTL effects}
+  \item{sigma}{residual variance-covariance}
+  \item{qtl}{QTL for each trait}
+  \item{eps}{epistatic terms}
+  \item{dists}{QTL locations}
 }
 
 \examples{

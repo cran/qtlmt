@@ -25,7 +25,7 @@ Array<- function(k){
 
 # mymtcmim: estimate parameters
 mymtcmim<- function(y,W,nws,ws,a,sigma,P,G,ngs,gs,b,init=1,
-  iter=2500,tol=1e-8){
+  iter=10000,tol=1e-12){
 # y: n by p matrix
 # W: n by nW matrix
 # nws: vector of length p, nws_j covariates for y_j, specified by ws
@@ -76,8 +76,7 @@ mymtcmim<- function(y,W,nws,ws,a,sigma,P,G,ngs,gs,b,init=1,
     loglik=as.double(loglik),
     as.integer(init),
     as.integer(iter),
-    as.double(tol),
-    DUP=FALSE)
+    as.double(tol))
   list(loglik=out$loglik,a=out$a,b=out$b,
        sigma=matrix(out$sigma,nrow=p,byrow=TRUE))
 }
@@ -208,8 +207,7 @@ fP<- function(A,mpos,mdat,dists,pp=1){
     as.integer(mid),
     as.integer(nmid),
     P=as.double(t(P)),
-    as.integer(pp),
-    DUP=FALSE)
+    as.integer(pp))
   matrix(out$P,nrow=n,byrow=T)
 }
 
@@ -257,7 +255,7 @@ fqtdst<- function(qt,dst,ep=NULL){
 
 # mtcmim: multiple-trait composite-interval-mapping 
 mtcmim<- function(y,mpos,mdat,x,xid,dists,a,b,sigma,
-  qtl=NULL,eps=NULL,win=Inf,range=0,pp=1,len=2,init=1,iter=2500,tol=1e-8){
+  qtl=NULL,eps=NULL,win=Inf,range=0,pp=1,len=2,init=1,iter=10000,tol=1e-12){
 # y: n by p matrix, traits
 # x: n by nW matrix, covarites; excluding intercept
 # xid: list of length p, xid[[j]] specifies columns of x as covariates for y_j 
@@ -517,7 +515,7 @@ ffo<- function(obj){
 
 # add one QTL to the model
 mtcmim.Add1<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
-  iter=2500,tol=1e-8,ext=FALSE){
+  iter=10000,tol=1e-12,ext=FALSE){
 # object: object is an object from mtcmim or alike
 # xid: xid[[j]] defines which columns of x to be covariates for y_j
   np<- ncol(y)
@@ -554,7 +552,7 @@ mtcmim.Add1<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
 
 #drop one QTL from the model
 mtcmim.Drop1<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
-  iter=2500,tol=1e-8,ext=FALSE){
+  iter=10000,tol=1e-12,ext=FALSE){
 # object: object from ffg0 or alike
   np<- ncol(y)
   drop<- TRUE
@@ -592,7 +590,7 @@ mtcmim.Drop1<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
 
 mtcmim.Step<- function(object,y,x,xid,mpos,mdat,cv=0,
   direction=c("both","backward","forward"), pp=1,len=1,
-  iter=2500,tol=1e-8,ext=FALSE){
+  iter=10000,tol=1e-12,ext=FALSE){
   direction<- match.arg(direction)
   
   o<- object
@@ -739,7 +737,7 @@ ffequalAll<- function(obj){
 
 #add one QTL to the model
 mtcmim.Add1All<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
-  iter=2500,tol=1e-8,ext=FALSE){
+  iter=10000,tol=1e-12,ext=FALSE){
 # object: object is an object from mtcmim or alike
 # xid: xid[[j]] defines which columns of x to be covariates for y_j
   ffequalAll(object)
@@ -773,7 +771,7 @@ mtcmim.Add1All<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
 
 # drop one QTL from the model
 mtcmim.Drop1All<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
-  iter=2500,tol=1e-8,ext=FALSE){
+  iter=10000,tol=1e-12,ext=FALSE){
 # object: object from ffg0 or alike
   ffequalAll(object)
 
@@ -810,7 +808,7 @@ mtcmim.Drop1All<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,
 
 mtcmim.StepAll<- function(object,y,x,xid,mpos,mdat,cv=0,
   direction=c("both","backward","forward"), pp=1,len=1,
-  iter=2500,tol=1e-8,ext=FALSE){
+  iter=10000,tol=1e-12,ext=FALSE){
   ffequalAll(object)
   direction<- match.arg(direction)
   
@@ -888,7 +886,7 @@ mtcmim.StepAll<- function(object,y,x,xid,mpos,mdat,cv=0,
 
 # unified step function
 mtcmimAdd1.default<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,type=1,
-  iter=2500,tol=1e-8,ext=FALSE){
+  iter=10000,tol=1e-12,ext=FALSE){
   if(type==1){
     mtcmim.Add1(object=object,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
       len=len,iter=iter,tol=tol,ext=ext)
@@ -902,7 +900,7 @@ mtcmimAdd1.default<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,type=1,
 }
 
 mtcmimDrop1.default<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,type=1,
-  iter=2500,tol=1e-8,ext=FALSE){
+  iter=10000,tol=1e-12,ext=FALSE){
   if(type==1){
     mtcmim.Drop1(object=object,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,pp=pp,
       len=len,iter=iter,tol=tol,ext=ext)
@@ -917,7 +915,7 @@ mtcmimDrop1.default<- function(object,y,x,xid,mpos,mdat,pp=1,len=1,type=1,
 
 mtcmimStep.default<- function(object,y,x,xid,mpos,mdat,cv=0,
   direction=c("both","backward","forward"),
-  pp=1,len=1,type=1,iter=2500,tol=1e-8,ext=FALSE){
+  pp=1,len=1,type=1,iter=10000,tol=1e-12,ext=FALSE){
   if(type==1){
     mtcmim.Step(object=object,y=y,x=x,xid=xid,mpos=mpos,mdat=mdat,cv=cv,
       direction=direction,pp=pp,len=len,iter=iter,tol=tol,ext=ext)
@@ -940,8 +938,8 @@ mtcmimAdd1<-
             pp=1,
             len=1,
             type=1,
-            iter=2500,
-            tol=1e-8,
+            iter=10000,
+            tol=1e-12,
             ext=FALSE)
 {
    UseMethod("mtcmimAdd1")
@@ -957,8 +955,8 @@ mtcmimDrop1<-
             pp=1,
             len=1,
             type=1,
-            iter=2500,
-            tol=1e-8,
+            iter=10000,
+            tol=1e-12,
             ext=FALSE)
 {
    UseMethod("mtcmimDrop1")
@@ -976,8 +974,8 @@ mtcmimStep<-
             pp=1,
             len=1,
             type=1,
-            iter=2500,
-            tol=1e-8,
+            iter=10000,
+            tol=1e-12,
             ext=FALSE)
 {
    UseMethod("mtcmimStep")

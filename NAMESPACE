@@ -8,6 +8,9 @@ export(gv2mpos,xid1ch,xeff,qeff,#fqtdst,
 
 #importFrom(mvtnorm, "rmvnorm")
 #importFrom(gdata, "reorder.factor")
+importFrom("stats", "cov", "factor.scope", "formula", "lm.fit",
+           "lm.wfit", "model.matrix", "pchisq", "pf", "predict", "qf",
+           "terms", "update", "update.formula", "var")
 
 S3method(mtcmimAdd1, default)
 S3method(mtcmimDrop1, default)

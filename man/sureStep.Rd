@@ -10,15 +10,15 @@ SURE model selection
 Select a SURE model via model selection.
 }
 \usage{
-sureAdd1(object, y, x, range=NULL, iter=250, tol=1e-8, ext=FALSE)
+sureAdd1(object, y, x, range=NULL, iter=10000, tol=1e-12, ext=FALSE)
 
-sureDrop1(object, y, x, range=NULL, iter=250, tol=1e-8, ext=FALSE)
+sureDrop1(object, y, x, range=NULL, iter=10000, tol=1e-12, ext=FALSE)
 
 sureStep(object, y, x, cv, direction=c("both","backward","forward"),
-   range=NULL, iter=250, steps=1000, tol=1e-8, ext=FALSE)
+   range=NULL, iter=10000, steps=1000, tol=1e-12, ext=FALSE)
 
 surStep(y, x, v, lower, upper, k, direction=c("both","backward",
-   "forward"), iter=250, max.terms=200, steps=1000, tol=1e-8)
+   "forward"), iter=10000, max.terms=200, steps=1000, tol=1e-12)
 }
 \arguments{
   \item{object}{
@@ -69,15 +69,15 @@ whether to perform an extensive search for an "optimal" model with the same numb
 }
 \value{
 a list with the following components:
-  \item{loglik:}{log-likelihood of the model}
-  \item{b:}{estimates of model coefficients}
-  \item{sigma:}{estimates of residual variance-covariance}
-  \item{v:}{variables selected in the model}
+  \item{loglik}{log-likelihood of the model}
+  \item{b}{estimates of model coefficients}
+  \item{sigma}{estimates of residual variance-covariance}
+  \item{v}{variables selected in the model}
 }
 
 \examples{
 data(etrait)
-x<- as.matrix(3/2-mdat)
+x<- as.matrix(mdat-1/2)
 y<- as.matrix(traits)[,1:3]
 v<- list()
 upper<- list()

@@ -6,7 +6,7 @@
 #############################
 # SURE: add, drop, stepwise #
 #############################
-sureMove<- function(object,y,x,range=NULL,iter=250,tol=1e-8){
+sureMove<- function(object,y,x,range=NULL,iter=10000,tol=1e-12){
 # object: object from sureEst() or alike
 # y: n by p matrix
 # x: n by m matrix
@@ -65,13 +65,13 @@ sureEst<-
             x,
             v,
             sigma,
-            iter=250,
-            tol=1e-8)
+            iter=10000,
+            tol=1e-12)
 {
    UseMethod("sureEst")
 }
 
-sureEst.default<- function(y, x, v, sigma, iter=250, tol=1e-8){
+sureEst.default<- function(y, x, v, sigma, iter=10000, tol=1e-12){
 # y: n by p matrix
 # x: n by m matrix
 # v: list of x's to start with
@@ -110,6 +110,20 @@ sureEst.default<- function(y, x, v, sigma, iter=250, tol=1e-8){
     as.integer(iter),
     as.double(tol))
   oo<- list(loglik=vv$loglik,b=vv$b,sigma=matrix(vv$sigma,p,p),v=v)
+  fit<- array(NA, dim=dim(y))
+  cnt<- 0
+  for(j in 1:length(oo$v)){
+    cnt<- cnt+1
+    fit[,j]<- oo$b[cnt]
+    k<- length(oo$v[[j]])
+    if(k>1){
+      fit[,j]<- fit[,j] + x[,oo$v[[j]]]%*%oo$b[cnt+1:k]
+    }else if(k>0){
+      fit[,j]<- fit[,j] + x[,oo$v[[j]]]*oo$b[cnt+1:k]
+    }
+    cnt<- cnt+k
+  }
+  oo$fitted.values<- fit
   class(oo)<- "sure"
   oo
 }
@@ -119,14 +133,14 @@ sureAdd1<-
             y,
             x,
             range=NULL,
-            iter=250,
-            tol=1e-8,
+            iter=10000,
+            tol=1e-12,
             ext=FALSE)
 {
    UseMethod("sureAdd1")
 }
 
-sureAdd1.default<- function(object,y,x,range=NULL,iter=250,tol=1e-8,ext=FALSE){
+sureAdd1.default<- function(object,y,x,range=NULL,iter=10000,tol=1e-12,ext=FALSE){
   if(!is.matrix(y)) stop("\a  y should be a matrix...")
   if(!is.matrix(x)) stop("\a  x should be a matrix...")
   n<- nrow(y)
@@ -145,10 +159,10 @@ sureAdd1.default<- function(object,y,x,range=NULL,iter=250,tol=1e-8,ext=FALSE){
   add<- FALSE
   for(j in 1:p){
     v0<- setdiff(range[[j]],o$v[[j]]); vl<- length(v0)
-    if(vl>0){
+    if(vl>0)for(vt in v0){
       vv1<- o$v
-      vv1[[j]]<- sort(c(o$v[[j]],v0[1]))
-      o1<- sureEst(y,x,vv1,o0$sigma,iter=iter,tol=tol)
+      vv1[[j]]<- sort(c(o$v[[j]],vt))
+      o1<- sureEst(y,x,v=vv1,sigma=o0$sigma,iter=iter,tol=tol)
       if(ext) o1<- sureMove(o1,y,x,range=range,iter=iter,tol=tol)
 
       if(o1$loglik>o0$loglik+1e-8){
@@ -168,15 +182,15 @@ sureDrop1<-
             y,
             x,
             range=NULL,
-            iter=250,
-            tol=1e-8,
+            iter=10000,
+            tol=1e-12,
             ext=FALSE)
 {
    UseMethod("sureDrop1")
 }
 
 sureDrop1.default<- function(object,y,x,range=NULL,
-  iter=250,tol=1e-8,ext=FALSE){
+  iter=10000,tol=1e-12,ext=FALSE){
   if(!is.matrix(y)) stop("\a  y should be a matrix...")
   if(!is.matrix(x)) stop("\a  x should be a matrix...")
   n<- nrow(y)
@@ -195,11 +209,10 @@ sureDrop1.default<- function(object,y,x,range=NULL,
   drop<- FALSE
   for(j in 1:p){
     v0<- o$v[[j]]; vl<- length(v0)
-    if(vl>0){
-      v0<- sort(v0,decreasing=F)
+    if(vl>0)for(vt in v0){
       vv1<- o$v
-      vv1[[j]]<- sort(setdiff(o$v[[j]],v0[1]))
-      o1<- sureEst(y,x,vv1,o0$sigma,iter=iter,tol=tol)
+      vv1[[j]]<- sort(setdiff(o$v[[j]],vt))
+      o1<- sureEst(y,x,v=vv1,sigma=o0$sigma,iter=iter,tol=tol)
       if(ext) o1<- sureMove(o1,y,x,range=range,iter=iter,tol=tol)
 
       if(o1$loglik>lik+1e-8){
@@ -225,9 +238,9 @@ sureStep<-
             cv,
             direction=c("both", "backward", "forward"),
             range=NULL,
-            iter=250,
+            iter=10000,
             steps=1000,
-            tol=1e-8,
+            tol=1e-12,
             ext=FALSE)
 {
    UseMethod("sureStep")
@@ -235,7 +248,7 @@ sureStep<-
 
 sureStep.default<- function(object, y, x, cv, 
   direction=c("both", "backward", "forward"), range=NULL,
-  iter=250, steps=1000, tol=1e-8, ext=FALSE){
+  iter=10000, steps=1000, tol=1e-12, ext=FALSE){
 # object: sure object to start with
 # y: n by p matrix
 # x: n by m matrix
@@ -333,17 +346,17 @@ surStep<-
             upper,
             k,
             direction=c("both", "backward", "forward"),
-            iter=250,
+            iter=10000,
             max.terms=200,
             steps=1000,
-            tol=1e-8)
+            tol=1e-12)
 {
    UseMethod("surStep")
 }
 
 surStep.default<- function(y, x, v, lower, upper, k,
   direction=c("both", "backward", "forward"),
-  iter=250, max.terms=200, steps=1000, tol=1e-8){
+  iter=10000, max.terms=200, steps=1000, tol=1e-12){
   direction<- match.arg(direction)
   if(direction=="backward") direction<- 0
     else if(direction=="forward") direction<- 1
@@ -452,16 +465,16 @@ sureEps<-
             v,
             k,
             direction=c("both", "backward", "forward"),
-            iter=250,
+            iter=10000,
             max.terms=200,
             steps=1000,
-            tol=1e-8)
+            tol=1e-12)
 {
    UseMethod("sureEps")
 }
 
 sureEps.default<- function(y, x, v, k, direction=c("both", "backward", "forward"),
-  iter=250, max.terms=200, steps=1000, tol=1e-8){
+  iter=10000, max.terms=200, steps=1000, tol=1e-12){
   direction<- match.arg(direction)
   if(!is.matrix(y)) stop("y should be a matrix...")
   if(!is.matrix(x)) stop("x should be a matrix...")

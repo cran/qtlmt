@@ -83,7 +83,7 @@ mAdd1.default <- function(object, scope, test=c("none", "Chisq", "F"), k=0, ...)
     df1<- p*vH
     df2<- w*t-(df1-2)/2
     Fs<- (1-WL^(1/t))/(WL^(1/t))*df2/df1
-    Fs[df1 < .Machine$double.eps] <- NA
+    Fs[df1 < .Machine$double.xmin] <- NA
     P <- Fs
     nnas <- !is.na(Fs)
     P[nnas] <- pf(Fs[nnas], df1[nnas], df2[nnas], lower.tail=FALSE)
@@ -93,7 +93,7 @@ mAdd1.default <- function(object, scope, test=c("none", "Chisq", "F"), k=0, ...)
     f<- vE-(p-vH+1)/2
     Chi2<- -f*log(WL)
     df<- p*vH
-    Chi2[df < .Machine$double.eps] <- NA
+    Chi2[df < .Machine$double.xmin] <- NA
     P <- Chi2
     nnas <- !is.na(Chi2)
     P[nnas] <- pchisq(Chi2[nnas], df[nnas], lower.tail=FALSE)
@@ -126,16 +126,20 @@ mAdd1.default <- function(object, scope, test=c("none", "Chisq", "F"), k=0, ...)
   vE[1]<- object$df.residual
   Es[1] <- Edet(object)
   const<- -n*p/2*(log(2*pi)+1)
-  lik<- const - n/2*log(Es[1])
-  AIC[1]<- -2*lik + k*(vH[1]*p + p*(p+1)/2)
+  if(Es[1] > 0){
+     lik<- const - n/2*log(Es[1])
+     AIC[1]<- -2*lik + k*(vH[1]*p + p*(p+1)/2)
+  }else AIC[1]<- Inf
   for(tt in scope) {
     fit<- NULL
     fit <- update(object, paste("~ . + ", tt), evaluate = TRUE,...)
     vH[tt] <- fit$rank
     vE[tt]<- fit$df.residual
     Es[tt] <- Edet(fit)
-    lik<- const - n/2*log(Es[tt])
-    AIC[tt]<- -2*lik + k*(vH[tt]*p + p*(p+1)/2)
+    if(Es[tt] > 0){
+       lik<- const - n/2*log(Es[tt])
+       AIC[tt]<- -2*lik + k*(vH[tt]*p + p*(p+1)/2)
+    }else AIC[tt]<- Inf
   }
   vH[-1] <- vH[-1] - vH[1]; vH[1]<- NA
   WLs<- c(NA, Es[-1]/Es[1])
@@ -181,7 +185,7 @@ mDrop1.default <- function(object, scope, test=c("none", "Chisq", "F"), k=0, ...
     df1<- p*vH
     df2<- w*t-(df1-2)/2
     Fs<- (1-WL^(1/t))/(WL^(1/t))*df2/df1
-    Fs[df1 < .Machine$double.eps] <- NA
+    Fs[df1 < .Machine$double.xmin] <- NA
     P <- Fs
     nnas <- !is.na(Fs)
     P[nnas] <- pf(Fs[nnas], df1[nnas], df2[nnas], lower.tail=FALSE)
@@ -191,7 +195,7 @@ mDrop1.default <- function(object, scope, test=c("none", "Chisq", "F"), k=0, ...
     f<- vE-(p-vH+1)/2
     Chi2<- -f*log(WL)
     df<- p*vH
-    Chi2[df < .Machine$double.eps] <- NA
+    Chi2[df < .Machine$double.xmin] <- NA
     P <- Chi2
     nnas <- !is.na(Chi2)
     P[nnas] <- pchisq(Chi2[nnas], df[nnas], lower.tail=FALSE)
@@ -233,14 +237,19 @@ mDrop1.default <- function(object, scope, test=c("none", "Chisq", "F"), k=0, ...
     else lm.fit(x[, jj, drop = FALSE], y)
     vH[i] <- z$rank
     Es[i] <- Edet(z)
-    lik<- const - n/2*log(Es[i])
-    AIC[i]<- -2*lik + k*(vH[i]*p + p*(p+1)/2)
+    if(Es[i] > 0){
+       lik<- const - n/2*log(Es[i])
+       AIC[i]<- -2*lik + k*(vH[i]*p + p*(p+1)/2)
+    }else AIC[i]<- Inf
   }
   vH<- object$rank - vH; vH<- c(NA,vH)
   vE<- object$df.residual
-  WLs<- Edet(object)/Es; WLs<- c(NA,WLs)
-  lik<- const - n/2*log(Edet(object))
-  AIC<- c(-2*lik + k*(object$rank*p + p*(p+1)/2),AIC)
+  detObj<- Edet(object)
+  WLs<- detObj/Es; WLs<- c(NA,WLs)
+  if(detObj > 0){
+     lik<- const - n/2*log(detObj)
+     AIC<- c(-2*lik + k*(object$rank*p + p*(p+1)/2),AIC)
+  }else AIC<- c(Inf, AIC)
   aod <- data.frame(Df = vH, "Wilks' Lambda" = WLs, AIC=AIC,
         row.names =c("<none>" ,scope), check.names = FALSE)
   test <- match.arg(test)
@@ -289,7 +298,6 @@ mStep.default<- function (object, scope, direction = c("both", "backward", "forw
     const<- -n*p/2*(log(2*pi)+1)
     lik<- const - n/2*log(Edet(object))
     -2*lik + k*(object$rank*p + p*(p+1)/2)
-
   }
   cut.string <- function(string) {
     if (length(string) > 1) 
@@ -366,13 +374,13 @@ mStep.default<- function (object, scope, direction = c("both", "backward", "forw
       o <- order(aod[, nc])
       if (trace) 
         print(aod[o, ])
-      if (o[1] == 1) 
+      if (o[1] == 1 || !is.finite(aod[o[1], nc]))
         break
       change <- rownames(aod)[o[1]]
     }
     fit0 <- update(fit, paste("~ .", change), evaluate = TRUE,...)
 #    fit0 <- eval.parent(fit0)
-    if (dim(fit0$residuals)[1] != n) 
+    if (dim(as.matrix(fit0$residuals))[1] != n)
       stop("number of rows in use has changed: remove missing values?")
     bAIC <- myaic(fit0,k,p)
     if (bAIC >= AIC + 1e-7) 

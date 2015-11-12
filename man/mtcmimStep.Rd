@@ -11,14 +11,14 @@ Model selection for multiple-trait composite multiple-interval mapping.
 }
 \usage{
 mtcmimAdd1(object, y, x, xid, mpos, mdat, pp=1, len=1, type=1,
-   iter=2500, tol=1e-8, ext=FALSE)
+   iter=10000, tol=1e-12, ext=FALSE)
 
 mtcmimDrop1(object, y, x, xid, mpos, mdat, pp=1, len=1, type=1,
-   iter=2500, tol=1e-8, ext=FALSE)
+   iter=10000, tol=1e-12, ext=FALSE)
 
 mtcmimStep(object, y, x, xid, mpos, mdat, cv=0,
    direction=c("both","backward","forward"), pp=1, len=1,
-   type=1, iter=2500, tol=1e-8, ext=FALSE)
+   type=1, iter=10000, tol=1e-12, ext=FALSE)
 }
 \arguments{
   \item{object}{
@@ -67,12 +67,12 @@ convergence tolerance.
 
 \value{
 a list with the following components:
-  \item{loglik:}{log-likelihood of the final model}
-  \item{a:}{covariate effects}
-  \item{b:}{QTL effects}
-  \item{sigma:}{residual variance-covariance}
-  \item{qtl:}{QTL for each trait}
-  \item{dists:}{QTL locations}
+  \item{loglik}{log-likelihood of the final model}
+  \item{a}{covariate effects}
+  \item{b}{QTL effects}
+  \item{sigma}{residual variance-covariance}
+  \item{qtl}{QTL for each trait}
+  \item{dists}{QTL locations}
 }
 
 \note{
