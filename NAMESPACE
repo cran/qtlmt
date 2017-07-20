@@ -6,6 +6,8 @@ export(gv2mpos,xid1ch,xeff,qeff,#fqtdst,
        sureEst,sureAdd1,sureDrop1,sureStep,surStep,sureEps,#sureMove,
        mtcmim,mtcmimAdd1,mtcmimDrop1,mtcmimStep)
 
+useDynLib(qtlmt, .registration = TRUE, .fixes = "C_")
+
 #importFrom(mvtnorm, "rmvnorm")
 #importFrom(gdata, "reorder.factor")
 importFrom("stats", "cov", "factor.scope", "formula", "lm.fit",

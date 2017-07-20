@@ -1,13 +1,13 @@
 3ebbd2648375fbdc01e5ed55b11129a8 *ChangeLog
-c2e879e1eb12799664d359512c182602 *DESCRIPTION
-53ec32395cd2657c8a256a65af1569bc *NAMESPACE
+cf3ed5a0be5208425b04c002f09d8a25 *DESCRIPTION
+09ba45dabcf32bcbad666e13e82c07a5 *NAMESPACE
 5b73073e6119b505a43d8d39ba4843b0 *R/misc.R
 18dcdace2b0d1f0ef1ade5a8d37712a1 *R/mstep.R
 2c263e8c21e349ea234df8fd2739e29d *R/mtcmim.R
 249b83e603a55cad127416591c3fc90f *R/sure.R
 1b867cda87123ec868ed82c7501131f7 *R/varSel.R
-2b7d7b5b9c806516b4df8e2086bb2fb2 *R/zzz.R
-164dacefabd7a0e9a1e8a52897b19b67 *data/etrait.RData
+d4ec74ad8e553ac13adbf74e6d17b876 *R/zzz.R
+525120c2934a119669d73ee95c2900ff *data/etrait.RData
 338571e467d98824fc23eeb813fadd18 *man/dataSets.Rd
 443e88c7a8a766093b4c1d45fd92ea85 *man/gv2mpos.Rd
 1fb44138956960af5536c92bd68cfc9e *man/mAdd1.Rd
@@ -22,5 +22,6 @@ d8170cc8c9230efdff6c14caa20ddaac *man/varGroups.Rd
 2db326dd7067f28161db5d41563074df *man/varSelect.Rd
 48807910dc089d75024cf788d2017ac1 *man/varStep.Rd
 387499ab9306132e28f53958cff469b6 *man/varT2.Rd
-0efdcbd5229ce77677e795c83cd854e7 *src/qtlmt.cc
+02a332aa6eb678da3593156b53a8d9ad *src/init.cc
+63990b39ff4d6f5961e0bb3056cd8a81 *src/qtlmt.cc
 3161ff2e3020c467aaa403592fbd5278 *src/qtlmt.h

@@ -7,7 +7,7 @@
  C++ functions
  ********************************************************/
 // general R functions
-extern "C"{
+//extern "C"{
  	void runifc(double* x,int& n,long *seed){
 		runif(x,n,seed);
 	}
@@ -32,10 +32,10 @@ extern "C"{
 		solve(a,n,b,x);
 		delete[] a;
 	}
-}
+//}
 
 // functions for QTL mapping
-extern "C"{
+//extern "C"{
 //SURE models
 	void sureEstc(double* y,int& n,int& p,double* x,int& m,int* nqs,int* qs,
 		double* b,double* sigma,double& loglik,int& ini_sigma,int& iter,double& tol){
@@ -99,8 +99,7 @@ extern "C"{
 		fP(A0,nP,nQ,mdat0,n,nm,mpos0,dists_ch,dists_mid,dists_d,mid,nmid,P0,pp);
 		delete[] A0; delete[] mdat0; delete[] mpos0; delete[] P0;
 	}
-}
-
+//}
 
 /********************************************************
  basic functions
