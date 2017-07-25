@@ -76,7 +76,8 @@ mymtcmim<- function(y,W,nws,ws,a,sigma,P,G,ngs,gs,b,init=1,
     loglik=as.double(loglik),
     as.integer(init),
     as.integer(iter),
-    as.double(tol))
+    as.double(tol),
+    PACKAGE="qtlmt")
   list(loglik=out$loglik,a=out$a,b=out$b,
        sigma=matrix(out$sigma,nrow=p,byrow=TRUE))
 }
@@ -207,7 +208,8 @@ fP<- function(A,mpos,mdat,dists,pp=1){
     as.integer(mid),
     as.integer(nmid),
     P=as.double(t(P)),
-    as.integer(pp))
+    as.integer(pp),
+    PACKAGE="qtlmt")
   matrix(out$P,nrow=n,byrow=T)
 }
 

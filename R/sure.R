@@ -108,7 +108,8 @@ sureEst.default<- function(y, x, v, sigma, iter=10000, tol=1e-12){
     loglik=as.double(loglik),
     as.integer(1),
     as.integer(iter),
-    as.double(tol))
+    as.double(tol),
+    PACKAGE="qtlmt")
   oo<- list(loglik=vv$loglik,b=vv$b,sigma=matrix(vv$sigma,p,p),v=v)
   fit<- array(NA, dim=dim(y))
   cnt<- 0
@@ -432,7 +433,8 @@ surStep.default<- function(y, x, v, lower, upper, k,
     as.integer(max.terms),
     as.integer(steps),
     as.integer(iter),
-    as.double(tol))
+    as.double(tol),
+    PACKAGE="qtlmt")
   vin<- matrix(vv$vin,nrow=p,ncol=m,byrow=T)
   record<- matrix(vv$rec,ncol=3,byrow=T)
   mx<- c(1:(steps+1))[record[,1]==9999]

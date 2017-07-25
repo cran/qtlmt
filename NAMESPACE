@@ -1,12 +1,10 @@
-useDynLib(qtlmt)
+useDynLib(qtlmt, .registration = TRUE)
 
 export(gv2mpos,xid1ch,xeff,qeff,#fqtdst,
        varT2,varAdd1,varDrop1,varStep,varGroup,varSelect,
        mlogLik,mStep,mAdd1,mDrop1,#mMove,
        sureEst,sureAdd1,sureDrop1,sureStep,surStep,sureEps,#sureMove,
        mtcmim,mtcmimAdd1,mtcmimDrop1,mtcmimStep)
-
-useDynLib(qtlmt, .registration = TRUE, .fixes = "C_")
 
 #importFrom(mvtnorm, "rmvnorm")
 #importFrom(gdata, "reorder.factor")

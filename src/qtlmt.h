@@ -10,6 +10,8 @@
 #else
 #define _(String) (String)
 #endif
+#include <R_ext/Rdynload.h> //R_CMethodDef
+//#include <Rdefines.h>
 
 #include "iostream"
 #include "fstream"

@@ -1,6 +1,6 @@
 Package: qtlmt
-Version: 0.1-5
-Date: 2017-07-19
+Version: 0.1-6
+Date: 2017-07-20
 Title: Tools for Mapping Multiple Complex Traits
 Authors@R: person("Riyan", "Cheng", role = c("aut","cre"), email = "riyancheng@hotmail.com")
 Author: Riyan Cheng [aut, cre]
@@ -12,6 +12,6 @@ LazyLoad: yes
 LazyData: no
 License: GPL (>= 2)
 NeedsCompilation: yes
-Packaged: 2017-07-20 00:55:16 UTC; rcheng
+Packaged: 2017-07-20 20:54:40 UTC; rcheng
 Repository: CRAN
-Date/Publication: 2017-07-20 18:22:50 UTC
+Date/Publication: 2017-07-25 20:31:45 UTC

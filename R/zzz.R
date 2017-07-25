@@ -1,5 +1,5 @@
 .onAttach <- function(lib, pkg){
-   packageStartupMessage("R/qtlmt is loaded")
+   packageStartupMessage("R/qtlmt is loaded\n")
 }
 .noGenerics <- TRUE
 #.onUnload <- function(libpath){
